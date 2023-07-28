@@ -3,7 +3,9 @@
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
 #include <QSettings>
+
 #include "serialport-handler.h"
+#include "coord-handler.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +17,11 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<SerialPortHandler>("SerialPortHandler", 1, 0, "SerialPortHandler");
     SerialPortHandler serialPortHandler(&settings);
+
+    qmlRegisterType<SerialPortHandler>("CoordHandler", 1, 0, "CoordHandler");
+    CoordHandler coordHandler;
+
+    QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::slotOpenBenchmarkFile);
 
     qmlRegisterUncreatableMetaObject(
         SerialPortENUM::staticMetaObject,   // meta object created by Q_NAMESPACE macro
@@ -30,6 +37,7 @@ int main(int argc, char *argv[])
         &app, []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
     engine.rootContext()->setContextProperty("portHandler", &serialPortHandler);
+    engine.rootContext()->setContextProperty("coordHandler", &coordHandler);
     engine.load(url);
 
     return app.exec();

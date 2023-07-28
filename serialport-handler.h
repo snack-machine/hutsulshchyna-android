@@ -47,7 +47,9 @@ public:
 
     Q_INVOKABLE void scanPorts();
     Q_INVOKABLE QSerialPort::SerialPortError openSerialPort();
-    Q_INVOKABLE void closeSerialPort();
+    Q_INVOKABLE void closeSerialPort() const /*{ m_port->close(); }*/;
+
+    void handlePortError();
 
     const QStringList getPortList() const { return m_portNames; };
     Q_INVOKABLE const QString description(int index) const;
@@ -74,6 +76,7 @@ public:
     void writeSettings();
 
 Q_SIGNALS:
+    void portDataRead(const QByteArray&);
     void error(const QString &message);
     void portListChanged();
     void portNameChanged();
@@ -86,9 +89,10 @@ Q_SIGNALS:
 private:
     QList<QSerialPortInfo> m_portList;
     QStringList m_portNames;
-    QPointer<QSerialPort> m_port;
+    QSerialPort* m_port;
     PortSettings portSettings;
     QSettings* settings;
+    QByteArray data;
 };
 
 #endif // SERIALPORTHANDLER_H

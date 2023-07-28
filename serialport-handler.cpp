@@ -1,7 +1,7 @@
 #include "serialport-handler.h"
 
 SerialPortHandler::SerialPortHandler(QSettings* s, QObject* parent)
-    : QObject(parent), m_port{new QSerialPort(this)}, settings{s}
+    : QObject(parent), m_port{nullptr}, settings{s}
 {
     scanPorts();
     readSettings();
@@ -25,9 +25,19 @@ void SerialPortHandler::scanPorts()
 
 QSerialPort::SerialPortError SerialPortHandler::openSerialPort()
 {
-    //    connect(m_port, &QSerialPort::errorOccurred, this, [i, port, this](){
-    //        if (m_port->error() == QSerialPort::ResourceError)
-    //            handlePortError(i); } );
+    m_port = new QSerialPort(this);
+    if (!m_port) {
+        emit error("Can't allocate memory");
+        return QSerialPort::UnknownError;
+    }
+    connect(m_port, &QSerialPort::errorOccurred, this, [this](){
+        if (m_port->error() == QSerialPort::ResourceError)
+            handlePortError();
+    });
+    connect(m_port, &QSerialPort::readyRead, [&]() {
+        data = m_port->readAll();
+        emit portDataRead(data);
+    });
 
     m_port->setPortName(portSettings.name);
     if (!(m_port->setBaudRate(portSettings.baudRate)
@@ -46,9 +56,18 @@ QSerialPort::SerialPortError SerialPortHandler::openSerialPort()
     return QSerialPort::NoError;
 }
 
-void SerialPortHandler::closeSerialPort()
+void SerialPortHandler::handlePortError()
 {
-    m_port->close();
+    closeSerialPort();
+    emit error(tr("Critical Resource Error"));
+}
+
+void SerialPortHandler::closeSerialPort() const
+{
+    if (m_port) {
+        m_port->close();
+        delete m_port;
+    }
 }
 
 void SerialPortHandler::readSettings()

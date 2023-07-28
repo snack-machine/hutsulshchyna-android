@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(hutsulshchyna-android VERSION 0.1 LANGUAGES CXX)
+project(hutsulshchyna-android VERSION 0.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -11,6 +11,8 @@ qt_standard_project_setup()
 qt_add_executable(apphutsulshchyna-android
     main.cpp
     serialport-handler.cpp serialport-handler.h
+    coord-handler.cpp coord-handler.h
+    nmea_parser/parsenmea.c nmea_parser/NMEA_Struct.h
 )
 
 qt_add_qml_module(apphutsulshchyna-android

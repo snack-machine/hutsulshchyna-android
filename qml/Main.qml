@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import CoordHandler
 
 ApplicationWindow {
     id: window
@@ -115,9 +116,9 @@ ApplicationWindow {
             }
 
             model: ListModel {
-                ListElement { title: qsTr("Old Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings-old.qml" }
+//                ListElement { title: qsTr("Old Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings-old.qml" }
                 ListElement { title: qsTr("Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings.qml" }
-                ListElement { title: qsTr("New Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings-new.qml" }
+//                ListElement { title: qsTr("New Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings-new.qml" }
                 ListElement { title: qsTr("Terminal"); source: "qrc:/hutsulshchyna-android/qml/terminal.qml" }
             }
 
@@ -135,31 +136,34 @@ ApplicationWindow {
             ColumnLayout {
                 id: columnLayout
                 anchors.horizontalCenter: parent.horizontalCenter
+                Item {
+                    height: 10
+                }
                 GridLayout {
                     columns: 6
                     Layout.alignment: Qt.AlignHCenter
                     Text { text: qsTr("Current coordinates"); Layout.alignment: Qt.AlignHCenter; Layout.columnSpan: 6}
                     Text { text: qsTr("Latitude:") }
-                    Text { id: currentLat; text: "0" }
+                    Text { id: currentLat; text: coordHandler.latitude }
                     Text { text: qsTr("Longitude:") }
-                    Text { id: currentLong; text: "0" }
+                    Text { id: currentLong; text: coordHandler.longitude }
                     Text { text: qsTr("Altitude:") }
-                    Text { id: currentAlt; text: "0" }
+                    Text { id: currentAlt; text: coordHandler.altitude }
                     Text { text: qsTr("Time:") }
-                    Text { id: timeValue; text: "0" }
+                    Text { id: timeValue; text: coordHandler.time }
+                    Text { text: qsTr("Satelits:") }
+                    Text { id: sataleits; text: coordHandler.satelits }
                     Text { text: qsTr("RMSD:") }
                     Text { id: rmsd; text: "0" }
-                    Text { text: qsTr("Satelits:") }
-                    Text { id: sataleits; text: "0" }
 //                    Text { id: positionModeStatus; text: "No data"; Layout.columnSpan: 4 }
 
                     Text { text: qsTr("Average coordinates"); Layout.alignment: Qt.AlignHCenter; Layout.columnSpan: 6}
                     Text { text: qsTr("Latitude:") }
-                    Text { id: averageLat; text: "0" }
+                    Text { id: averageLat; text: coordHandler.averageLat }
                     Text { text: qsTr("Longitude:") }
-                    Text { id: averageLong; text: "0" }
+                    Text { id: averageLong; text: coordHandler.averageLong }
                     Text { text: qsTr("Altitude:")}
-                    Text { id: averageAlt; text: "0"}
+                    Text { id: averageAlt; text: coordHandler.averageAlt}
                 }
                 Item {
                     height: 10
@@ -167,15 +171,19 @@ ApplicationWindow {
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter
                     Button {
-                        id: setCenter
+                        id: setCenterButton
                         text: qsTr("Set Center")
                         onClicked: {}
-                        Layout.columnSpan: 2
                     }
                     Text { text: qsTr("Scale") }
                     SpinBox {
                         from: 1
                         to: 30
+                    }
+                    Button {
+                        id: clearButton
+                        text: qsTr("Clear")
+                        onClicked: {}
                     }
                 }
                 Rectangle {
