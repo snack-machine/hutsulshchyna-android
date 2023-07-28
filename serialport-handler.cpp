@@ -1,16 +1,15 @@
 #include "serialport-handler.h"
 
-//#include <QFile>
-//#include <QQmlFile>
-
-//#include <QDebug>
-
-SerialPortHandler::SerialPortHandler(QObject* parent)
-    : QObject(parent), m_port{nullptr}
+SerialPortHandler::SerialPortHandler(QSettings* s, QObject* parent)
+    : QObject(parent), m_port{new QSerialPort(this)}, settings{s}
 {
     scanPorts();
-//    m_port = new QSerialPort(this);
-//    qDebug() << m_portList.size();
+    readSettings();
+}
+
+SerialPortHandler::~SerialPortHandler()
+{
+    writeSettings();
 }
 
 void SerialPortHandler::scanPorts()
@@ -18,15 +17,62 @@ void SerialPortHandler::scanPorts()
     m_portList.clear();
     m_portNames.clear();
     m_portList = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo& portInfo : m_portList) {
+    for (const QSerialPortInfo& portInfo : qAsConst(m_portList)) {
         m_portNames.append(portInfo.portName());
     }
     emit portListChanged();
 }
 
-const QStringList SerialPortHandler::getPortList() const
+QSerialPort::SerialPortError SerialPortHandler::openSerialPort()
 {
-    return m_portNames;
+    //    connect(m_port, &QSerialPort::errorOccurred, this, [i, port, this](){
+    //        if (m_port->error() == QSerialPort::ResourceError)
+    //            handlePortError(i); } );
+
+    m_port->setPortName(portSettings.name);
+    if (!(m_port->setBaudRate(portSettings.baudRate)
+          && m_port->setDataBits(portSettings.dataBits)
+          && m_port->setParity(portSettings.parity)
+          && m_port->setStopBits(portSettings.stopBits)
+          && m_port->setFlowControl(portSettings.flowControl)))
+    {
+        emit error("Can't set serial port settings");
+        return QSerialPort::NotOpenError;
+    }
+    if (!m_port->open(QIODevice::ReadOnly)) {
+        emit error("Can't open serial port");
+        return QSerialPort::OpenError;
+    }
+    return QSerialPort::NoError;
+}
+
+void SerialPortHandler::closeSerialPort()
+{
+    m_port->close();
+}
+
+void SerialPortHandler::readSettings()
+{
+    settings->beginGroup("/serialPort");
+    portSettings.name =         settings->value("/portName", "").toString();
+    portSettings.baudRate =     static_cast<QSerialPort::BaudRate>(settings->value("/baudRate", QSerialPort::Baud9600).toInt());
+    portSettings.dataBits =     static_cast<QSerialPort::DataBits>(settings->value("/dataBits", QSerialPort::Data8).toInt());
+    portSettings.parity =       static_cast<QSerialPort::Parity>(settings->value("/parity", QSerialPort::NoParity).toInt());
+    portSettings.stopBits =     static_cast<QSerialPort::StopBits>(settings->value("/stopBits", QSerialPort::OneStop).toInt());
+    portSettings.flowControl =  static_cast<QSerialPort::FlowControl>(settings->value("/flowControl", QSerialPort::NoFlowControl).toInt());
+    settings->endGroup();
+}
+
+void SerialPortHandler::writeSettings()
+{
+    settings->beginGroup("/serialPort");
+    settings->setValue("/portName",     portSettings.name);
+    settings->setValue("/baudRate",     portSettings.baudRate);
+    settings->setValue("/dataBits",     portSettings.dataBits);
+    settings->setValue("/parity",       portSettings.parity);
+    settings->setValue("/stopBits",     portSettings.stopBits);
+    settings->setValue("/flowControl",  portSettings.flowControl);
+    settings->endGroup();
 }
 
 const QString SerialPortHandler::description(int index) const
@@ -69,67 +115,50 @@ const QString SerialPortHandler::product(int index) const
     return QString(m_portList.at(index).productIdentifier());
 }
 
+void SerialPortHandler::setPortName(const QString& name)
+{
+    if (portSettings.name == name)
+        return;
+    portSettings.name = name;
+    emit portNameChanged();
+}
+
+void SerialPortHandler::setBaudRate(QSerialPort::BaudRate baudRate)
+{
+    if (portSettings.baudRate == baudRate)
+        return;
+    portSettings.baudRate = baudRate;
+    emit baudRateChanged();
+}
+
 void SerialPortHandler::setDataBits(QSerialPort::DataBits dataBits)
 {
+    if (portSettings.dataBits == dataBits)
+        return;
     portSettings.dataBits = dataBits;
+    emit dataBitsChanged();
 }
 
 void SerialPortHandler::setParity(QSerialPort::Parity parity)
 {
+    if (portSettings.parity == parity)
+        return;
     portSettings.parity = parity;
+    emit parityChanged();
 }
 
 void SerialPortHandler::setStopBits(QSerialPort::StopBits stopBits)
 {
+    if (portSettings.stopBits == stopBits)
+        return;
     portSettings.stopBits = stopBits;
+    emit stopBitsChanged();
 }
 
 void SerialPortHandler::setFlowControl(QSerialPort::FlowControl flowControl)
 {
+    if (portSettings.flowControl == flowControl)
+        return;
     portSettings.flowControl = flowControl;
-}
-
-void SerialPortHandler::setBaudRate(qint32 baudRate)
-{
-    portSettings.baudRate = baudRate;
-}
-
-void SerialPortHandler::setPortName(const QString& name)
-{
-    portSettings.name = name;
-}
-
-QSerialPort::SerialPortError SerialPortHandler::openSerialPort()
-{
-    if (!m_port) {
-        m_port = new QSerialPort(this);
-        if (!m_port) {
-            emit error("Can't allocate memory.");
-            return QSerialPort::DeviceNotFoundError;
-        }
-    }
-    m_port->setPortName(portSettings.name);
-    if (m_port->open(QIODevice::ReadOnly)) {
-        if (!(m_port->setBaudRate(portSettings.baudRate)
-              && m_port->setDataBits(portSettings.dataBits)
-              && m_port->setParity(portSettings.parity)
-              && m_port->setStopBits(portSettings.stopBits)
-              && m_port->setFlowControl(portSettings.flowControl)))
-        {
-            m_port->close();
-            emit error("Can't set serial port settings");
-            return QSerialPort::NotOpenError;
-        }
-    } else {
-        emit error("Can't open serial port");
-        return QSerialPort::OpenError;
-    }
-    return QSerialPort::NoError;
-}
-
-void SerialPortHandler::closeSerialPort()
-{
-    if (m_port) {
-        m_port->close();
-    }
+    emit flowControlChanged();
 }

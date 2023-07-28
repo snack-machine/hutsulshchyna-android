@@ -35,8 +35,8 @@ ApplicationWindow {
         icon.name: "settings"
         icon.source: "qrc:/hutsulshchyna-android/icons/settings.png"
         onTriggered: {
-            stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
-//            drawer.close()
+            if (stackView.depth === 1)
+                stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
         }
     }
 
@@ -88,23 +88,19 @@ ApplicationWindow {
         height: window.height
         interactive: stackView.depth === 1
 
-        Rectangle {
-            id: drawerHeader
-            height: parent.height * 0.2
-            width: parent.width
-            color: "green"
-        }
-
         ListView {
             id: listView
 
             focus: true
             currentIndex: -1
-            anchors {
-                top: drawerHeader.bottom
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
+            anchors.fill: parent
+            header: Component {
+                Rectangle {
+                    id: drawerHeader
+                    height: drawer.height * 0.2
+                    width: parent.width
+                    color: "green"
+                }
             }
 
             delegate: ItemDelegate {
@@ -119,8 +115,10 @@ ApplicationWindow {
             }
 
             model: ListModel {
+                ListElement { title: qsTr("Old Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings-old.qml" }
                 ListElement { title: qsTr("Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings.qml" }
                 ListElement { title: qsTr("New Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings-new.qml" }
+                ListElement { title: qsTr("Terminal"); source: "qrc:/hutsulshchyna-android/qml/terminal.qml" }
             }
 
             ScrollIndicator.vertical: ScrollIndicator { }
@@ -131,9 +129,11 @@ ApplicationWindow {
         id: stackView
         anchors.fill: parent
 
-        initialItem: Pane {
-            id: pane
+        initialItem: ScrollView {
+            contentWidth: stackView.width
+            contentHeight: columnLayout.implicitHeight
             ColumnLayout {
+                id: columnLayout
                 anchors.horizontalCenter: parent.horizontalCenter
                 GridLayout {
                     columns: 6
@@ -187,19 +187,12 @@ ApplicationWindow {
                     implicitHeight: 300
                     color: "blue"
                 }
-                Rectangle {
+                TextField {
                     Layout.fillWidth: true
-                    implicitHeight: pointDescription.implicitHeight
-                    TextInput {
-                        id: pointDescription
-                        clip: true
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        font.pixelSize: 18
-                        text: "Enter your text here..."
-                        selectByMouse: true
-                    }
+                    font.pixelSize: 18
+                    placeholderText: qsTr("Enter point description")
                 }
+
                 RoundButton {
                     Layout.margins: 5
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignTop

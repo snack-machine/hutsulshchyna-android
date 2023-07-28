@@ -20,6 +20,8 @@ qt_add_qml_module(apphutsulshchyna-android
         "qml/Main.qml"
         "qml/serialport-settings.qml"
         "qml/serialport-settings-new.qml"
+        "qml/serialport-settings-old.qml"
+        "qml/terminal.qml"
     RESOURCES
         "icons/back.png"
         "icons/drawer.png"
