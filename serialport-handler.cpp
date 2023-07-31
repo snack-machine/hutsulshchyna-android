@@ -9,7 +9,13 @@ SerialPortHandler::SerialPortHandler(QSettings* s, QObject* parent)
             handlePortError();
     });
     connect(m_port, &QSerialPort::readyRead, this, [this]() {
-        QByteArray data = m_port->readAll();
+        QByteArray data;
+        while (m_port->canReadLine()) {
+            data = m_port->readLine();
+            QString line = QString::fromUtf8(data).trimmed();
+            qDebug() << "Received line:" << line;
+        }
+//        QByteArray data = m_port->readAll();
         emit portDataRead(data);
     });
     scanPorts();

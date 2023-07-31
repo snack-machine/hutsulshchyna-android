@@ -138,6 +138,8 @@ ScrollView  {
         Component.onCompleted: {
             let temp;
             temp = portName.indexOfValue(portHandler.portname);
+            console.log(portName.indexOfValue(portHandler.portname));
+            console.log(portHandler.portname);
             if (temp !== -1)
                 portName.currentIndex = temp;
             temp = baudRate.indexOfValue(portHandler.baudRate)
