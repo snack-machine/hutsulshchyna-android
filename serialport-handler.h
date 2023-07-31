@@ -4,8 +4,8 @@
 #include <QObject>
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtSerialPort/QSerialPort>
-#include <QPointer>
-#include <qqml.h>
+//#include <QPointer>
+//#include <qqml.h>
 #include <QSettings.h>
 
 namespace SerialPortENUM
@@ -23,13 +23,15 @@ class SerialPortHandler : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList ports READ getPortList NOTIFY portListChanged)
-    Q_PROPERTY(QString name READ getPortName WRITE setPortName NOTIFY portNameChanged)
+    Q_PROPERTY(QString portName READ getPortName WRITE setPortName NOTIFY portNameChanged)
     Q_PROPERTY(QSerialPort::BaudRate baudRate READ getBaudRate WRITE setBaudRate NOTIFY baudRateChanged)
     Q_PROPERTY(QSerialPort::DataBits dataBits READ getDataBits WRITE setDataBits NOTIFY dataBitsChanged)
     Q_PROPERTY(QSerialPort::Parity parity READ getParity WRITE setParity NOTIFY parityChanged)
     Q_PROPERTY(QSerialPort::StopBits stopBits READ getStopBits WRITE setStopBits NOTIFY stopBitsChanged)
     Q_PROPERTY(QSerialPort::FlowControl flowControl READ getFlowControl WRITE setFlowControl NOTIFY flowControlChanged)
-    QML_ELEMENT
+    Q_PROPERTY(bool portOpen READ getPortStatus NOTIFY portStateChanged)
+
+//    QML_ELEMENT
 
     struct PortSettings {
         QString name;
@@ -47,7 +49,8 @@ public:
 
     Q_INVOKABLE void scanPorts();
     Q_INVOKABLE QSerialPort::SerialPortError openSerialPort();
-    Q_INVOKABLE void closeSerialPort() const /*{ m_port->close(); }*/;
+    Q_INVOKABLE void closeSerialPort();
+    bool getPortStatus() const;
 
     void handlePortError();
 
@@ -85,6 +88,7 @@ Q_SIGNALS:
     void parityChanged();
     void stopBitsChanged();
     void flowControlChanged();
+    void portStateChanged();
 
 private:
     QList<QSerialPortInfo> m_portList;
@@ -92,7 +96,7 @@ private:
     QSerialPort* m_port;
     PortSettings portSettings;
     QSettings* settings;
-    QByteArray data;
+//    QByteArray data;
 };
 
 #endif // SERIALPORTHANDLER_H

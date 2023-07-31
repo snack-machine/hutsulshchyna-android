@@ -1,15 +1,21 @@
 
 #include "coord-handler.h"
-#include "nmea_parser/NMEA_Struct.h"
+
+
+#include <QDebug>
 
 CoordHandler::CoordHandler(QObject* parent)
     : QObject{parent}, d_averageLat{0}, d_averageLong{0}, d_averageAlt{0}, size{0}
 {
-
+    memset(&ctx, 0, sizeof(BmUartProtoNmea));
+    memset(&NMEA_Data_Settings, 0, sizeof(struct NMEA_Data));
+    NMEA_Data_Settings.GPGGA.time = 1;
 }
 
-void CoordHandler::Parse_GPGGA_Slot(const struct GPGGA& GPGGA)
+void CoordHandler::parseGPGAA(const struct GPGGA& GPGGA)
 {
+//    qDebug() << "start parsing";
+
     time = QString::number(GPGGA.time);
 
     if(GPGGA.time < 100000)
@@ -24,19 +30,10 @@ void CoordHandler::Parse_GPGGA_Slot(const struct GPGGA& GPGGA)
     time[2] = ':';
     time.push_back("  ");
 
-//    Time_VL->setText(this->Time);
-
-    latitude   = QString::number(GPGGA.latitude, 'g', 9) + GPGGA.lat;
-//    Lat_VL->setText(this->Lat);
-
-    longitude  = QString::number(GPGGA.longitude, 'g', 9) + GPGGA.lon;
-//    Long_VL->setText(this->Long);
-
-    altitude  = QString::number(GPGGA.H_antena, 'f', 2) + GPGGA.h_antena;
-//    Alt_VL->setText(this->Alt);
-
+    latitude = QString::number(GPGGA.latitude, 'g', 9) + GPGGA.lat;
+    longitude = QString::number(GPGGA.longitude, 'g', 9) + GPGGA.lon;
+    altitude = QString::number(GPGGA.H_antena, 'f', 2) + GPGGA.h_antena;
     satelits = QString::number(GPGGA.nka);
-//    Satelits_VL->setText(this->Satelits);
 
     d_averageLat  = (GPGGA.latitude  + d_averageLat * size) / (size + 1);
     d_averageLong = (GPGGA.longitude + d_averageLat * size)/ (size + 1);
@@ -102,29 +99,31 @@ void CoordHandler::Parse_GPGGA_Slot(const struct GPGGA& GPGGA)
 //    visual_coord->repaint();
 //}
 
-//void Coord_QW::Set_Center()
-//{
+void CoordHandler::setCenter()
+{
 //    visual_coord->Set_Center_Lat_Slot(A_Lat);
 //    visual_coord->Set_Center_Long_Slot(A_Long);
 
 //    Lat_Spinbox ->setValue(A_Lat);
 //    Long_Spinbox->setValue(A_Long);
-//}
+}
 
-//connect(parse_nmea,         SIGNAL(Parse_GPGGA_Signal(const GPGGA&)),
-//        coord,              SLOT(Parse_GPGGA_Slot(const GPGGA&)));
-
-void CoordHandler::slotOpenBenchmarkFile(const QByteArray& data)
+void CoordHandler::getPortMessageSlot(const QByteArray& data)
 {
-
     QString Text_NMEA = QString::fromLocal8Bit(data);
     QStringList Text_NMEA_List = Text_NMEA.split("\n");
 
-    struct NMEA_Data NMEA_D, NMEA_Data_Settings;
-    memset(&NMEA_Data_Settings, 0, sizeof(struct NMEA_Data));
-    NMEA_Data_Settings.GPGGA.time = 1;
-    BmUartProtoNmea ctx;
-    memset(&ctx, 0, sizeof(BmUartProtoNmea));
+//    struct NMEA_Data NMEA_D, NMEA_Data_Settings;
+//    memset(&NMEA_Data_Settings, 0, sizeof(struct NMEA_Data));
+//    NMEA_Data_Settings.GPGGA.time = 1;
+//    BmUartProtoNmea ctx;
+//    memset(&ctx, 0, sizeof(BmUartProtoNmea));
+
+//    NMEA_D = NMEA_Data_Settings;
+//    char data2[4096];
+//    memset(data2, 0, 4096);
+//    strcpy(data2, Text_NMEA.toLocal8Bit().data());
+//    nmea_recv(&ctx, data2, strlen(data2), &NMEA_D);
 
     for(int i = 0; i < Text_NMEA_List.size(); i++) {
         if(Text_NMEA_List.at(i).size() > 0) {
@@ -141,8 +140,10 @@ void CoordHandler::slotOpenBenchmarkFile(const QByteArray& data)
             memset(data2, 0, 4096);
             strncpy(data2, Text_NMEA.toLocal8Bit().data(), sizeof(data2));
             nmea_recv(&ctx, data2, strlen(data2), &NMEA_D);
+//            qDebug() << NMEA_D.GPGGA.latitude <<  NMEA_D.GPGGA.longitude;
             if(NMEA_D.GPGGA.latitude && NMEA_D.GPGGA.longitude) {
-                Parse_GPGGA_Slot(NMEA_D.GPGGA);
+//                qDebug() << "yes";
+                parseGPGAA(NMEA_D.GPGGA);
             }
         }
     }

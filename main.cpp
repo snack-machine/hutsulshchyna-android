@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<SerialPortHandler>("CoordHandler", 1, 0, "CoordHandler");
     CoordHandler coordHandler;
 
-    QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::slotOpenBenchmarkFile);
+    QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::getPortMessageSlot);
 
     qmlRegisterUncreatableMetaObject(
         SerialPortENUM::staticMetaObject,   // meta object created by Q_NAMESPACE macro

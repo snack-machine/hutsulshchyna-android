@@ -28,8 +28,8 @@ qt_add_qml_module(apphutsulshchyna-android
         "icons/back.png"
         "icons/drawer.png"
         "icons/menu.png"
-        "icons/disconnect.png"
-        "icons/connect.png"
+        "icons/disconnected.png"
+        "icons/connected.png"
         "icons/settings.png"
 )
 

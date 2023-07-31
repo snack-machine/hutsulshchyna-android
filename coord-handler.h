@@ -2,6 +2,7 @@
 #define COORDHANDLER_H
 
 #include <QObject>
+#include "nmea_parser/NMEA_Struct.h"
 
 class CoordHandler : public QObject
 {
@@ -15,11 +16,13 @@ class CoordHandler : public QObject
     Q_PROPERTY(QString averageLat READ getAverageLat NOTIFY coordChanged)
     Q_PROPERTY(QString averageAlt READ getAverageAlt NOTIFY coordChanged)
     Q_PROPERTY(QString dost READ getDost NOTIFY coordChanged)
+//    QML_ELEMENT
 
 public:
     explicit CoordHandler(QObject* parent = nullptr);
 
-    void Parse_GPGGA_Slot(const struct GPGGA& GPGGA);
+    void parseGPGAA(const struct GPGGA& GPGGA);
+    Q_INVOKABLE void setCenter();
 
 private:
     const QString& getTime() const { return time; };
@@ -48,10 +51,13 @@ private:
     unsigned int size;
     //    double rmsd;
 
-public slots:
-    void slotOpenBenchmarkFile(const QByteArray& data);
+    struct NMEA_Data NMEA_D, NMEA_Data_Settings;
+    BmUartProtoNmea ctx;
 
-signals:
+public Q_SLOTS:
+    void getPortMessageSlot(const QByteArray& data);
+
+Q_SIGNALS:
     void coordChanged();
 };
 

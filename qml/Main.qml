@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
 import CoordHandler
+import SerialPortHandler
 
 ApplicationWindow {
     id: window
@@ -27,8 +28,10 @@ ApplicationWindow {
 
     Action {
         id: openSerialPortAction
-        icon.source: "qrc:/hutsulshchyna-android/icons/disconnect.png"
-        onTriggered: {}
+        icon.source: portHandler.portOpen ? "qrc:/hutsulshchyna-android/icons/connected.png" : "qrc:/hutsulshchyna-android/icons/disconnected.png"
+        onTriggered: {
+            portHandler.portOpen ? portHandler.closeSerialPort() : portHandler.openSerialPort()
+        }
     }
 
     Action {
@@ -36,8 +39,10 @@ ApplicationWindow {
         icon.name: "settings"
         icon.source: "qrc:/hutsulshchyna-android/icons/settings.png"
         onTriggered: {
-            if (stackView.depth === 1)
+            if (stackView.depth === 1){
+                listView.currentIndex = 0
                 stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
+            }
         }
     }
 

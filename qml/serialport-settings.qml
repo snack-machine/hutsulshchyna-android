@@ -8,26 +8,11 @@ import SerialPortENUM
 ScrollView  {
     id: topItem
     contentWidth: availableWidth
-//    clip: true
-//    signal portOpened(string result)
-
-//    Connections {
-//        target: window
-
-//        function onClosePort() {
-//            portHandler.closeSerialPort();
-//        }
-//    }
+    clip: true
     ColumnLayout {
         id: lay
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 5
-//        SerialPortHandler {
-//            id: portHandler
-//            onError: (msg)=> {
-//                console.log(msg);
-//            }
-//        }
         Text {
             Layout.topMargin: 10
             text: "Select Serial Port:"
@@ -136,20 +121,18 @@ ScrollView  {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             text: "Accept"
             onClicked: {
-                console.log(topItem.contentWidth);
-//                if (portName.currentIndex !== -1) {
-//                    portHandler.setPortName(portName.currentValue);
-//                    portHandler.setBaudRate(baudRate.currentValue);
-//                    portHandler.setDataBits(dataBits.currentValue);
-//                    portHandler.setParity(parity.currentValue);
-//                    portHandler.setStopBits(stopBits.currentValue);
-//                    portHandler.setFlowControl(flowControl.currentValue);
-//                    var qwe = portHandler.openSerialPort();
-//                    if (qwe === SerialPort.NoError) {
+                if (portName.currentIndex !== -1 && !portHandler.portOpen) {
+                    portHandler.portName = portName.currentValue;
+                    portHandler.baudRate = baudRate.currentValue;
+                    portHandler.dataBits = dataBits.currentValue;
+                    portHandler.parity = parity.currentValue;
+                    portHandler.stopBits = stopBits.currentValue;
+                    portHandler.flowControl = flowControl.currentValue;
+                    var qwe = portHandler.openSerialPort();
+                    if (qwe === SerialPort.NoError) {
 //                        stackView.pop();
-//                        topItem.portOpened(portName.currentValue);
-//                    }
-//                }
+                    }
+                }
             }
         }
         Component.onCompleted: {
