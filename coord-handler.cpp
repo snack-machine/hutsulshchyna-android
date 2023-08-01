@@ -54,9 +54,9 @@ void CoordHandler::parseGPGAA()
     size++;
 
     //    visual_coord->Set_Average_Slot(A_Lat, A_Long);
-    averageLat = QString::number(d_averageLat, 'f', 2);
+    averageLat = QString::number(d_averageLat, 'g', 9);
     averageLong = QString::number(d_averageLong, 'g', 9);
-    averageAlt  = QString::number(d_averageAlt, 'g', 9);
+    averageAlt  = QString::number(d_averageAlt, 'f', 2);
     emit coordChanged();
 //    Average_Alt_VL->setText(Average_Alt + GPGGA.h_antena);
 
@@ -159,7 +159,6 @@ void CoordHandler::getPortMessageSlot(const QByteArray& data)
     for (QStringView line : dataView.split('\n')) {
         qDebug() << "STTTTAAAAAARRRRTTT";
         qDebug() << line.length();
-//        qDebug() << line.length();
         if (line.length() < 10) {
             continue;
         }
@@ -190,8 +189,8 @@ void CoordHandler::getPortMessageSlot(const QByteArray& data)
         gpgga.altitude = tokens.at(9).toDouble();
 
         gpgga.lat = tokens.at(3).toString();
-        gpgga.lat = tokens.at(5).toString();
-        gpgga.lat = tokens.at(10).toString();
+        gpgga.lon = tokens.at(5).toString();
+        gpgga.alt = tokens.at(10).toString();
 
         parseGPGAA();
     }    

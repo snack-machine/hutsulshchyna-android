@@ -6,6 +6,7 @@
 
 #include "serialport-handler.h"
 #include "coord-handler.h"
+#include "file-handler.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,9 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<SerialPortHandler>("CoordHandler", 1, 0, "CoordHandler");
     CoordHandler coordHandler;
+
+    qmlRegisterType<SerialPortHandler>("FileHandler", 1, 0, "FileHandler");
+    FileHandler fileHandler(&coordHandler);
 
     QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::getPortMessageSlot);
 
@@ -38,6 +42,7 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     engine.rootContext()->setContextProperty("portHandler", &serialPortHandler);
     engine.rootContext()->setContextProperty("coordHandler", &coordHandler);
+    engine.rootContext()->setContextProperty("fileHandler", &fileHandler);
     engine.load(url);
 
     return app.exec();

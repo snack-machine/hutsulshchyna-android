@@ -50,9 +50,6 @@ public:
     void parseGPGAA();
     Q_INVOKABLE void setCenter();
 
-private:
-//    static const QRegularExpression regex;
-
     const QString& getTime() const { return time; };
     const QString& getLongitude() const { return longitude; };
     const QString& getLatitude() const { return latitude; };
@@ -61,8 +58,10 @@ private:
     const QString& getAverageLong() const { return averageLong; };
     const QString& getAverageLat() const { return averageLat; };
     const QString& getAverageAlt() const { return averageAlt; };
-//    const QString& getDost() const { return dost; };
+    //    const QString& getDost() const { return dost; };
 
+private:
+//    static const QRegularExpression regex;
     double ddmmToDegrees(double value);
 
     struct GPGGA gpgga;
