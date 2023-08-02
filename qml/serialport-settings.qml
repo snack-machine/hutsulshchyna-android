@@ -128,16 +128,17 @@ ScrollView  {
                     portHandler.parity = parity.currentValue;
                     portHandler.stopBits = stopBits.currentValue;
                     portHandler.flowControl = flowControl.currentValue;
-                    var qwe = portHandler.openSerialPort();
+                    let qwe = portHandler.openSerialPort();
                     if (qwe === SerialPort.NoError) {
-//                        stackView.pop();
+                        stackView.pop()
+                        listView.currentIndex = -1
                     }
                 }
             }
         }
         Component.onCompleted: {
             let temp;
-            temp = portName.indexOfValue(portHandler.portname);
+            temp = portName.indexOfValue(portHandler.portName);
             if (temp !== -1)
                 portName.currentIndex = temp;
             temp = baudRate.indexOfValue(portHandler.baudRate)

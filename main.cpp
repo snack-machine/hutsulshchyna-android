@@ -1,4 +1,3 @@
-
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
@@ -6,6 +5,7 @@
 
 #include "serialport-handler.h"
 #include "coord-handler.h"
+#include "file-handler.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +20,9 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<SerialPortHandler>("CoordHandler", 1, 0, "CoordHandler");
     CoordHandler coordHandler;
+
+    qmlRegisterType<SerialPortHandler>("FileHandler", 1, 0, "FileHandler");
+    FileHandler fileHandler(&coordHandler);
 
     QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::getPortMessageSlot);
 
@@ -38,28 +41,8 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     engine.rootContext()->setContextProperty("portHandler", &serialPortHandler);
     engine.rootContext()->setContextProperty("coordHandler", &coordHandler);
+    engine.rootContext()->setContextProperty("fileHandler", &fileHandler);
     engine.load(url);
 
     return app.exec();
 }
-
-//#include <QtWidgets/QApplication>
-//#include <QtQuick/QQuickView>
-//#include <QtQml/QQmlEngine>
-//#include <QtQml/QQmlContext>
-//#include <QTimer>
-
-
-//int main(int argc, char *argv[])
-//{
-//    QApplication app(argc, argv);
-
-//    QQuickView viewer;
-//    QObject::connect(viewer.engine(), &QQmlEngine::quit, &viewer, &QWindow::close);
-//    viewer.setTitle(QStringLiteral("hutsulshchyna-android"));
-//    viewer.setSource(QUrl("qrc:/hutsulshchyna-android/Main.qml"));
-//    viewer.setResizeMode(QQuickView::SizeRootObjectToView);
-//    viewer.show();
-
-//    return app.exec();
-//}

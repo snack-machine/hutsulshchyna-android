@@ -12,7 +12,8 @@ qt_add_executable(apphutsulshchyna-android
     main.cpp
     serialport-handler.cpp serialport-handler.h
     coord-handler.cpp coord-handler.h
-    nmea_parser/parsenmea.c nmea_parser/NMEA_Struct.h
+    file-handler.h file-handler.cpp
+#    nmea_parser/parsenmea.c nmea_parser/NMEA_Struct.h
 )
 
 qt_add_qml_module(apphutsulshchyna-android
@@ -20,9 +21,8 @@ qt_add_qml_module(apphutsulshchyna-android
     VERSION 1.0
     QML_FILES
         "qml/Main.qml"
+        "qml/InitialItem.qml"
         "qml/serialport-settings.qml"
-        "qml/serialport-settings-new.qml"
-        "qml/serialport-settings-old.qml"
         "qml/terminal.qml"
     RESOURCES
         "icons/back.png"

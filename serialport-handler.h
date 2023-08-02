@@ -4,13 +4,11 @@
 #include <QObject>
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtSerialPort/QSerialPort>
-//#include <QPointer>
-//#include <qqml.h>
 #include <QSettings.h>
 
 namespace SerialPortENUM
 {
-Q_NAMESPACE
+    Q_NAMESPACE
     Q_ENUM_NS(QSerialPort::BaudRate)
     Q_ENUM_NS(QSerialPort::DataBits)
     Q_ENUM_NS(QSerialPort::FlowControl)
@@ -31,8 +29,6 @@ class SerialPortHandler : public QObject
     Q_PROPERTY(QSerialPort::FlowControl flowControl READ getFlowControl WRITE setFlowControl NOTIFY flowControlChanged)
     Q_PROPERTY(bool portOpen READ getPortStatus NOTIFY portStateChanged)
 
-//    QML_ELEMENT
-
     struct PortSettings {
         QString name;
         QSerialPort::BaudRate baudRate;
@@ -40,7 +36,7 @@ class SerialPortHandler : public QObject
         QSerialPort::Parity parity;
         QSerialPort::StopBits stopBits;
         QSerialPort::FlowControl flowControl;
-        bool localEchoEnabled;
+//        bool localEchoEnabled;
     };
 
 public:
@@ -50,16 +46,13 @@ public:
     Q_INVOKABLE void scanPorts();
     Q_INVOKABLE QSerialPort::SerialPortError openSerialPort();
     Q_INVOKABLE void closeSerialPort();
-    bool getPortStatus() const;
+//    Q_INVOKABLE const QString description(int index) const;
+//    Q_INVOKABLE const QString manufacturer(int index) const;
+//    Q_INVOKABLE const QString location(int index) const;
+//    Q_INVOKABLE const QString vendor(int index) const;
+//    Q_INVOKABLE const QString product(int index) const;
 
     void handlePortError();
-
-    const QStringList getPortList() const { return m_portNames; };
-    Q_INVOKABLE const QString description(int index) const;
-    Q_INVOKABLE const QString manufacturer(int index) const;
-    Q_INVOKABLE const QString location(int index) const;
-    Q_INVOKABLE const QString vendor(int index) const;
-    Q_INVOKABLE const QString product(int index) const;
 
     void setPortName(const QString& name);
     void setBaudRate(QSerialPort::BaudRate baudRate);
@@ -68,12 +61,15 @@ public:
     void setStopBits(QSerialPort::StopBits stopBits);
     void setFlowControl(QSerialPort::FlowControl flowControl);
 
+    const QStringList getPortList() const { return m_portNames; };
     const QString& getPortName() const { return portSettings.name; };
     QSerialPort::BaudRate getBaudRate() const { return portSettings.baudRate; };
     QSerialPort::DataBits getDataBits() const { return portSettings.dataBits; };
     QSerialPort::Parity getParity() const { return portSettings.parity; };
     QSerialPort::StopBits getStopBits() const { return portSettings.stopBits; };
     QSerialPort::FlowControl getFlowControl() const { return portSettings.flowControl; };
+    QSerialPort* getPort() { return m_port; };
+    bool getPortStatus() const;
 
     void readSettings();
     void writeSettings();

@@ -1,5 +1,5 @@
 #include "serialport-handler.h"
-#include <QDebug>
+#include <QDebug> // <--
 
 SerialPortHandler::SerialPortHandler(QSettings* s, QObject* parent)
     : QObject(parent), m_port{new QSerialPort(this)}, settings{s}
@@ -9,8 +9,16 @@ SerialPortHandler::SerialPortHandler(QSettings* s, QObject* parent)
             handlePortError();
     });
     connect(m_port, &QSerialPort::readyRead, this, [this]() {
-        QByteArray data = m_port->readAll();
-        emit portDataRead(data);
+        QByteArray data;
+//        data = m_port->readAll();
+//        emit portDataRead(data);
+//        qDebug() << data;
+        while (m_port->canReadLine()) {
+            data = m_port->readLine();
+            QString line = QString::fromUtf8(data);
+            qDebug() << "Received line:" << line;
+            emit portDataRead(data);
+        }
     });
     scanPorts();
     readSettings();
@@ -34,7 +42,6 @@ void SerialPortHandler::scanPorts()
 
 QSerialPort::SerialPortError SerialPortHandler::openSerialPort()
 {
-    qDebug() << portSettings.name;
     m_port->setPortName(portSettings.name);
     if (!(m_port->setBaudRate(portSettings.baudRate)
           && m_port->setDataBits(portSettings.dataBits)
@@ -49,6 +56,7 @@ QSerialPort::SerialPortError SerialPortHandler::openSerialPort()
         emit error("Can't open serial port");
         return QSerialPort::OpenError;
     }
+    qDebug() << portSettings.name;  // <--
     emit portStateChanged();
     return QSerialPort::NoError;
 }
@@ -142,42 +150,42 @@ void SerialPortHandler::setFlowControl(QSerialPort::FlowControl flowControl)
     emit flowControlChanged();
 }
 
-const QString SerialPortHandler::description(int index) const
-{
-    if (!(index >= 0 && index < m_portList.size())) {
-        return "";
-    }
-    return m_portList.at(index).description();
-}
+//const QString SerialPortHandler::description(int index) const
+//{
+//    if (!(index >= 0 && index < m_portList.size())) {
+//        return "";
+//    }
+//    return m_portList.at(index).description();
+//}
 
-const QString SerialPortHandler::manufacturer(int index) const
-{
-    if (!(index >= 0 && index < m_portList.size())) {
-        return "";
-    }
-    return m_portList.at(index).manufacturer();
-}
+//const QString SerialPortHandler::manufacturer(int index) const
+//{
+//    if (!(index >= 0 && index < m_portList.size())) {
+//        return "";
+//    }
+//    return m_portList.at(index).manufacturer();
+//}
 
-const QString SerialPortHandler::location(int index) const
-{
-    if (!(index >= 0 && index < m_portList.size())) {
-        return "";
-    }
-    return m_portList.at(index).systemLocation();
-}
+//const QString SerialPortHandler::location(int index) const
+//{
+//    if (!(index >= 0 && index < m_portList.size())) {
+//        return "";
+//    }
+//    return m_portList.at(index).systemLocation();
+//}
 
-const QString SerialPortHandler::vendor(int index) const
-{
-    if (!(index >= 0 && index < m_portList.size()) || !m_portList.at(index).hasVendorIdentifier()) {
-        return "";
-    }
-    return QString(m_portList.at(index).vendorIdentifier());
-}
+//const QString SerialPortHandler::vendor(int index) const
+//{
+//    if (!(index >= 0 && index < m_portList.size()) || !m_portList.at(index).hasVendorIdentifier()) {
+//        return "";
+//    }
+//    return QString(m_portList.at(index).vendorIdentifier());
+//}
 
-const QString SerialPortHandler::product(int index) const
-{
-    if (!(index >= 0 && index < m_portList.size()) || !m_portList.at(index).hasProductIdentifier()) {
-        return "";
-    }
-    return QString(m_portList.at(index).productIdentifier());
-}
+//const QString SerialPortHandler::product(int index) const
+//{
+//    if (!(index >= 0 && index < m_portList.size()) || !m_portList.at(index).hasProductIdentifier()) {
+//        return "";
+//    }
+//    return QString(m_portList.at(index).productIdentifier());
+//}
