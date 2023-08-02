@@ -1,42 +1,58 @@
 #include "file-handler.h"
 #include "coord-handler.h"
 
-#include <QFile>
-#include <QXmlStreamReader>
+//#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QStringView>
 #include <QUrl>
 #include <QLatin1StringView>
+#include <QDateTime>
+#include <QFileInfo>
 
 #include <QDebug>
 
 FileHandler::FileHandler(CoordHandler* coordHandler, QObject* parent)
-    : QObject{parent}, m_coordHandler{coordHandler}
+    : QObject{parent}, m_coordHandler{coordHandler}, formattedDateTime{}
 {
-
 }
 
-void FileHandler::processFile(const QString& filePath, const QString& pointName, const QString& pointDescription)
+void FileHandler::processFile(const QString& filePath, QString pointName, const QString& pointDescription)
 {
-//    qDebug() << "FileHandler received: " << filePath;
-    qDebug() << "FileHandler received: " << QUrl(filePath).toLocalFile();;
-    QString localFile(QUrl(filePath).toLocalFile());
-    QFile file(localFile);
-    if (!file.open(QIODevice::ReadWrite | QIODevice::Text)) {
-        qDebug() << "Failed to open file:" << filePath;
+    if (m_coordHandler->getAverageLong().isEmpty() || m_coordHandler->getAverageLat().isEmpty()) {
+        qDebug() << "Not found average coords";
         return;
     }
 
-    QString xmlData = file.readAll(); // Read the entire file into a QString
-    file.close();
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    formattedDateTime = currentDateTime.toString("yyyy-MM-dd_hh-mm-ss");
+
+    if (pointName.isEmpty()) {
+        pointName = formattedDateTime;
+    }
+
+    QString localFile(QUrl(filePath).toLocalFile());
+    QFile file(localFile);
+    if (file.exists()) {
+        addToExistingFile(&file, pointName, pointDescription);
+    } else {
+        addToNewFile(&file, pointName, pointDescription);
+    }
+}
+
+void FileHandler::addToExistingFile(QFile* file, QString& pointName, const QString& pointDescription)
+{
+    if (!file->open(QIODevice::ReadWrite | QIODevice::Text)) {
+        qDebug() << "Failed to open file";
+        return;
+    }
+    QString xmlData = file->readAll();
+    file->close();
 
     int pos = xmlData.indexOf("</Document>");
     if (pos == -1) {
-        qDebug() << "Could not find <Document> element in the file.";
         return;
     }
 
-    // Insert the new elements right after the <Document> element
     xmlData.insert(pos,
         "<Placemark>\n"
         "<name>" + pointName + "</name>\n"
@@ -51,80 +67,88 @@ void FileHandler::processFile(const QString& filePath, const QString& pointName,
 
         "<styleUrl>#media-photo.png</styleUrl>\n"
         "<Point>\n"
-//        "<coordinates>24.9156735,48.3604371</coordinates>\n"
         "<coordinates>" + m_coordHandler->getAverageLong() + ',' + m_coordHandler->getAverageLat() + "</coordinates>\n"
         "</Point>\n"
         "<gx:TimeStamp>\n"
-        "<when>2023-07-25T09:13:00Z</when>\n"
+        "<when>" + formattedDateTime + "</when>\n"
         "</gx:TimeStamp>\n"
         "</Placemark>\n"
     );
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug() << "Failed to open file for writing:" << filePath;
+
+    if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug() << "Failed to open file for writing";
         return;
     }
 
-//    QXmlStreamWriter xmlWriter(&file);
-//    xmlWriter.setAutoFormatting(true);
-//    xmlWriter.writeCharacters(xmlData);
-
-    QTextStream out(&file);
+    QTextStream out(file);
     out << xmlData;
 
-    file.close();
+    file->close();
     qDebug() << "Elements successfully inserted!";
 }
 
+void FileHandler::addToNewFile(QFile* file, QString& pointName, const QString& pointDescription)
+{
+    if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug() << "Failed to open file";
+        return;
+    }
 
-//while (!xmlReader.atEnd() && !xmlReader.hasError()) {
-//    if (xmlReader.isStartElement() && xmlReader.name() == "Document") {
-//        // Found the <Document> element, start copying its content
-//        xmlWriter.writeStartElement(xmlReader.name().toString());
+    QFileInfo fileInfo(file->fileName());
 
-//        // Copy the elements inside <Document> until we reach the closing </Document>
-//        while (!xmlReader.atEnd() && !xmlReader.hasError()) {
-//            xmlReader.readNext();
-//            if (xmlReader.isEndElement() && xmlReader.name() == "Document") {
-//                // Reached the closing </Document>, stop copying
-//                xmlWriter.writeEndElement();
-//                break;
-//            } else {
-//                // Write the current element to the output file
-//                xmlWriter.writeCurrentToken(xmlReader);
-//            }
-//        }
-//    } else {
-//        // Write other elements directly to the output file
-//        xmlWriter.writeCurrentToken(xmlReader);
-//    }
+    QXmlStreamWriter xmlWriter(file);
+    xmlWriter.setAutoFormatting(true);
 
-//    // Move to the next element in the input XML
-//    xmlReader.readNext();
-//}
+    xmlWriter.writeStartDocument();
+    xmlWriter.writeStartElement("kml");
+    xmlWriter.writeNamespace("http://www.opengis.net/kml/2.2", "kml");
+    xmlWriter.writeNamespace("http://www.google.com/kml/ext/2.2", "gx");
+    xmlWriter.writeNamespace("http://www.w3.org/2005/Atom", "atom");
 
-//// Now, add the new <Placemark> block
-//xmlWriter.writeStartElement("Placemark");
-//xmlWriter.writeTextElement("name", "2023-07-25 09:13:16");
-//xmlWriter.writeStartElement("description");
-//xmlWriter.writeCDATA("<!-- desc_gen:start -->\n"
-//                     "<font color=\"black\"><table width=\"100%\"><tr><td width=\"100%\" align=\"center\">\n"
-//                     "<!-- desc_user:start -->\n"
-//                     "Орел\n"
-//                     "<!-- desc_user:end -->\n"
-//                     "</td></tr><tr><td><table width=\"100%\"></table></td></tr></table></font>\n"
-//                     "<!-- desc_gen:end -->");
-//xmlWriter.writeEndElement(); // description
-//xmlWriter.writeTextElement("styleUrl", "#media-photo.png");
-//xmlWriter.writeStartElement("Point");
-//xmlWriter.writeTextElement("coordinates", "24.9158735,48.3602371");
-//xmlWriter.writeEndElement(); // Point
-//xmlWriter.writeStartElement("gx:TimeStamp");
-//xmlWriter.writeTextElement("when", "2023-07-25T09:13:25Z");
-//xmlWriter.writeEndElement(); // gx:TimeStamp
-//xmlWriter.writeEndElement(); // Placemark
+    xmlWriter.writeStartElement("Document");
+    xmlWriter.writeTextElement("name", fileInfo.fileName());
+    xmlWriter.writeStartElement("atom:author");
+    xmlWriter.writeTextElement("atom:name", "Sigma");
+    xmlWriter.writeEndElement(); // atom:author
 
-//// Truncate the file at the current position to remove any remaining content
-//file.resize(file.pos());
+//    xmlWriter.writeStartElement("Style");
+//    xmlWriter.writeAttribute("id", "media-photo.png");
+//    xmlWriter.writeStartElement("IconStyle");
+//    xmlWriter.writeStartElement("Icon");
+//    xmlWriter.writeTextElement("href", "files/media-photo.png");
+//    xmlWriter.writeEndElement(); // Icon
+//    xmlWriter.writeEmptyElement("hotSpot");
+//    xmlWriter.writeAttribute("x", "0.5");
+//    xmlWriter.writeAttribute("y", "0.0");
+//    xmlWriter.writeAttribute("xunits", "fraction");
+//    xmlWriter.writeAttribute("yunits", "fraction");
+//    xmlWriter.writeEndElement(); // IconStyle
+//    xmlWriter.writeEndElement(); // Style
 
-//// Close the file
-//file.close();
+    xmlWriter.writeStartElement("Placemark");
+    xmlWriter.writeTextElement("name", pointName);
+    xmlWriter.writeStartElement("description");
+    xmlWriter.writeCDATA("<!-- desc_gen:start -->\n"
+                         "<font color=\"black\"><table width=\"100%\"><tr><td width=\"100%\" align=\"center\">\n"
+                         "<!-- desc_user:start -->\n" + \
+                         pointDescription +\
+                         "<!-- desc_user:end -->\n"
+                         "</td></tr><tr><td><table width=\"100%\"></table></td></tr></table></font>\n"
+                         "<!-- desc_gen:end -->");
+    xmlWriter.writeEndElement(); // description
+//    xmlWriter.writeTextElement("styleUrl", "#media-photo.png");
+    xmlWriter.writeStartElement("Point");
+    xmlWriter.writeTextElement("coordinates", m_coordHandler->getAverageLong() + ',' + m_coordHandler->getAverageLat());
+    xmlWriter.writeEndElement(); // Point
+    xmlWriter.writeStartElement("gx:TimeStamp");
+    xmlWriter.writeTextElement("when", formattedDateTime);
+    xmlWriter.writeEndElement(); // gx:TimeStamp
+    xmlWriter.writeEndElement(); // Placemark
+
+    xmlWriter.writeEndElement(); // Document
+    xmlWriter.writeEndElement(); // kml
+    xmlWriter.writeEndDocument();
+
+    file->close();
+    qDebug() << "File successfully created!";
+}

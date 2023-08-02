@@ -87,7 +87,7 @@ ScrollView {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             text: "Save to file"
             onClicked: {
-                openDialog.open()
+                saveDialog.open()
             }
         }
     }

@@ -40,10 +40,15 @@ ApplicationWindow {
         icon.name: "settings"
         icon.source: "qrc:/hutsulshchyna-android/icons/settings.png"
         onTriggered: {
-            if (stackView.depth === 1){
-                listView.currentIndex = 0
-                stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
+//            if (stackView.depth === 1){
+//                listView.currentIndex = 0
+//                stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
+//            }
+            if (stackView.depth > 1) {
+                stackView.pop()
             }
+            listView.currentIndex = 0
+            stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
         }
     }
 
@@ -173,7 +178,7 @@ ApplicationWindow {
         }
 
         onAccepted: {
-            fileHandler.processFile(selectedFile);
+            fileHandler.processFile(selectedFile, stackView.initialItem.name, stackView.initialItem.description);
         }
     }
 
@@ -184,7 +189,7 @@ ApplicationWindow {
         title: qsTr("Open File")
 
         onAccepted: {
-            fileHandler.processFile(selectedFile, stackView.initialItem.pointName, stackView.initialItem.description);
+            fileHandler.processFile(selectedFile, stackView.initialItem.name, stackView.initialItem.description);
         }
     }
 }

@@ -49,7 +49,7 @@ void CoordHandler::parseGPGAA()
     //    satelits = QString::number(gpgga.nka);
 
     d_averageLat  = (gpgga.latitude  + d_averageLat * size) / (size + 1);
-    d_averageLong = (gpgga.longitude + d_averageLat * size) / (size + 1);
+    d_averageLong = (gpgga.longitude + d_averageLong * size) / (size + 1);
     d_averageAlt = (gpgga.altitude + d_averageAlt * size) / (size + 1);
     size++;
 
@@ -118,82 +118,52 @@ void CoordHandler::setCenter()
 //    Long_Spinbox->setValue(A_Long);
 }
 
-//void CoordHandler::getPortMessageSlot(const QByteArray& data)
-//{
-//    QString Text_NMEA = QString::fromLocal8Bit(data);
-//    QStringList Text_NMEA_List = Text_NMEA.split("\n");
-
-//    for(int i = 0; i < Text_NMEA_List.size(); i++) {
-//        if(Text_NMEA_List.at(i).size() > 0) {
-//            QString Z = *(Text_NMEA_List.at(i).cend() - 1);
-
-//            if(Z != "\r") {
-//                Text_NMEA_List[i] += "\r";
-//            }
-
-//            Text_NMEA = Text_NMEA_List.at(i) + "\n";
-
-//            NMEA_D = NMEA_Data_Settings;
-//            char data2[4096];
-////            string data2{Text_NMEA.toLocal8Bit().data()};
-////            nmea_recv(&ctx, data2.c_str(), data2.size(), &nmead);
-//            memset(data2, 0, std::size(data2));
-//            strncpy(data2, Text_NMEA.toLocal8Bit().data(), std::size(data2));
-
-//            qDebug() << data2;
-//            nmea_recv(&ctx, data2, strlen(data2), &NMEA_D);
-//            qDebug() << NMEA_D.GPGGA.latitude <<  NMEA_D.GPGGA.longitude;
-//            if(NMEA_D.GPGGA.latitude && NMEA_D.GPGGA.longitude) {
-//                qDebug() << "yes";
-//                parseGPGAA(NMEA_D.GPGGA);
-//            }
-//        }
-//    }
-//}
-
 void CoordHandler::getPortMessageSlot(const QByteArray& data)
 {
+    if (data.size() < 10) {
+        return;
+    }
+
+    if (data.at(0) != '$' || data.at(3) != 'G' || data.at(4) != 'G' || data.at(5) != 'A') {
+        return;
+    }
+
+    /* check checksum */
+    int crc = 0;
+    qsizetype end = data.lastIndexOf('*');
+    for (qsizetype i = 1; i < end; ++i) {
+        crc ^= data.at(i);
+    }
+    bool ok = false;
+    int crcPart = data.mid(end+1, 2).toInt(&ok, 16);
+    if (crc != crcPart) {
+        return;
+    }
+
     const QString stringData = QString::fromLocal8Bit(data);
-    const QStringView dataView{stringData.trimmed()};
+    const QStringView line{stringData};
 
-    for (QStringView line : dataView.split('\n')) {
-        qDebug() << "STTTTAAAAAARRRRTTT";
-        qDebug() << line.length();
-        if (line.length() < 10) {
-            continue;
-        }
-//        bool regMatch = regex.match(line).hasMatch();
-//        if (!regMatch) {
-//            continue;
-//        }
-        if (line.at(0) != '$' || line.at(3) != 'G' || line.at(4) != 'G' || line.at(5) != 'A') {
-            continue;
-        }
+    const QList<QStringView> tokens = line.split(',');
+    if (tokens.size() < 11) {
+        return;
+    }
+    QTime parsedTime = QTime::fromString(tokens.at(1).toString(), "HHmmss.z");
+    time = parsedTime.toString();
 
-        const QList<QStringView> tokens = line.split(',');
-        if (tokens.size() < 13) {
-            continue;
-        }
-        /* check checksum */
+    double lat  = tokens.at(2).toDouble(&ok);
+    double lng = tokens.at(4).toDouble(&ok);
+    if (!ok) {
+        return;
+    }
+    gpgga.latitude = ddmmToDegrees(lat);
+    gpgga.longitude = ddmmToDegrees(lng);
+    gpgga.altitude = tokens.at(9).toDouble();
 
-        QTime parsedTime = QTime::fromString(tokens.at(1).toString(), "HHmmss.z");
-        time = parsedTime.toString();
-        bool ok = false;
-        double lat  = tokens.at(2).toDouble(&ok);
-        double lng = tokens.at(4).toDouble(&ok);
-        if (!ok) {
-            continue;
-        }
-        gpgga.latitude = ddmmToDegrees(lat);
-        gpgga.longitude = ddmmToDegrees(lng);
-        gpgga.altitude = tokens.at(9).toDouble();
+    gpgga.lat = tokens.at(3).toString();
+    gpgga.lon = tokens.at(5).toString();
+    gpgga.alt = tokens.at(10).toString();
 
-        gpgga.lat = tokens.at(3).toString();
-        gpgga.lon = tokens.at(5).toString();
-        gpgga.alt = tokens.at(10).toString();
-
-        parseGPGAA();
-    }    
+    parseGPGAA();
 }
 
 double CoordHandler::ddmmToDegrees(double value) {

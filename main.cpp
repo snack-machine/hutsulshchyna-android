@@ -1,4 +1,3 @@
-
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
@@ -47,24 +46,3 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-
-//#include <QtWidgets/QApplication>
-//#include <QtQuick/QQuickView>
-//#include <QtQml/QQmlEngine>
-//#include <QtQml/QQmlContext>
-//#include <QTimer>
-
-
-//int main(int argc, char *argv[])
-//{
-//    QApplication app(argc, argv);
-
-//    QQuickView viewer;
-//    QObject::connect(viewer.engine(), &QQmlEngine::quit, &viewer, &QWindow::close);
-//    viewer.setTitle(QStringLiteral("hutsulshchyna-android"));
-//    viewer.setSource(QUrl("qrc:/hutsulshchyna-android/Main.qml"));
-//    viewer.setResizeMode(QQuickView::SizeRootObjectToView);
-//    viewer.show();
-
-//    return app.exec();
-//}

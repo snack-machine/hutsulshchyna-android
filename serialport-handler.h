@@ -68,6 +68,7 @@ public:
     QSerialPort::Parity getParity() const { return portSettings.parity; };
     QSerialPort::StopBits getStopBits() const { return portSettings.stopBits; };
     QSerialPort::FlowControl getFlowControl() const { return portSettings.flowControl; };
+    QSerialPort* getPort() { return m_port; };
     bool getPortStatus() const;
 
     void readSettings();
