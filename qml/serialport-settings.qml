@@ -109,18 +109,13 @@ ScrollView  {
                 ]
             }
         }
-    //    CheckBox {
-    //        id: echoBox
-    //        Layout.margins: 10
-    //        checked: true
-    //        text: "Local echo"
-    //    }
 
-        RoundButton {
+        Button {
             Layout.margins: 10
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             text: "Accept"
             onClicked: {
+                let qwe = portHandler.openSerialPort();
                 if (portName.currentIndex !== -1 && !portHandler.portOpen) {
                     portHandler.portName = portName.currentValue;
                     portHandler.baudRate = baudRate.currentValue;
@@ -136,6 +131,7 @@ ScrollView  {
                 }
             }
         }
+
         Component.onCompleted: {
             let temp;
             temp = portName.indexOfValue(portHandler.portName);

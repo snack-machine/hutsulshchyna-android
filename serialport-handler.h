@@ -6,6 +6,14 @@
 #include <QtSerialPort/QSerialPort>
 #include <QSettings.h>
 
+#ifdef Q_OS_ANDROID
+#include <QJniObject>
+
+namespace JavaPart {
+    extern QJniObject javaPortHandler;
+}
+#endif
+
 namespace SerialPortENUM
 {
     Q_NAMESPACE
@@ -36,7 +44,6 @@ class SerialPortHandler : public QObject
         QSerialPort::Parity parity;
         QSerialPort::StopBits stopBits;
         QSerialPort::FlowControl flowControl;
-//        bool localEchoEnabled;
     };
 
 public:
@@ -92,7 +99,6 @@ private:
     QSerialPort* m_port;
     PortSettings portSettings;
     QSettings* settings;
-//    QByteArray data;
 };
 
 #endif // SERIALPORTHANDLER_H

@@ -11,7 +11,7 @@ ScrollView  {
         Layout.preferredWidth: parent.width
         clip: true
         wrapMode: TextArea.Wrap
-        font.pixelSize: 14
+        font.pixelSize: 10
     }
 
     Connections {

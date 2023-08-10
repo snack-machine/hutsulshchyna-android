@@ -10,9 +10,6 @@ SerialPortHandler::SerialPortHandler(QSettings* s, QObject* parent)
     });
     connect(m_port, &QSerialPort::readyRead, this, [this]() {
         QByteArray data;
-//        data = m_port->readAll();
-//        emit portDataRead(data);
-//        qDebug() << data;
         while (m_port->canReadLine()) {
             data = m_port->readLine();
             QString line = QString::fromUtf8(data);

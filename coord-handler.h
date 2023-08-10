@@ -2,8 +2,7 @@
 #define COORDHANDLER_H
 
 #include <QObject>
-#include <QRegularExpression>
-//#include "nmea_parser/NMEA_Struct.h"
+//#include <QRegularExpression>
 
 class CoordHandler : public QObject
 {
@@ -17,7 +16,7 @@ class CoordHandler : public QObject
     Q_PROPERTY(QString averageLat READ getAverageLat NOTIFY coordChanged)
     Q_PROPERTY(QString averageAlt READ getAverageAlt NOTIFY coordChanged)
 //    Q_PROPERTY(QString dost READ getDost NOTIFY coordChanged)
-//    QML_ELEMENT
+
 //    struct GPGGA{
 //        double   time;
 //        double   latitude;
@@ -46,9 +45,8 @@ class CoordHandler : public QObject
 public:
     explicit CoordHandler(QObject* parent = nullptr);
 
-//    void parseGPGAA(const CoordHandler::GPGGA& GPGGA);
-    void parseGPGAA();
     Q_INVOKABLE void setCenter();
+    Q_INVOKABLE void clearData();
 
     const QString& getTime() const { return time; };
     const QString& getLongitude() const { return longitude; };
@@ -63,6 +61,7 @@ public:
 private:
 //    static const QRegularExpression regex;
     double ddmmToDegrees(double value);
+    void parseGPGAA();
 
     struct GPGGA gpgga;
 

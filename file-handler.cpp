@@ -8,8 +8,9 @@
 #include <QLatin1StringView>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QQmlFile>
 
-#include <QDebug>
+//#include <QDebug>
 
 FileHandler::FileHandler(CoordHandler* coordHandler, QObject* parent)
     : QObject{parent}, m_coordHandler{coordHandler}, formattedDateTime{}
@@ -19,7 +20,8 @@ FileHandler::FileHandler(CoordHandler* coordHandler, QObject* parent)
 void FileHandler::processFile(const QString& filePath, QString pointName, const QString& pointDescription)
 {
     if (m_coordHandler->getAverageLong().isEmpty() || m_coordHandler->getAverageLat().isEmpty()) {
-        qDebug() << "Not found average coords";
+        emit error(tr("Coordinates not found"));
+//        qDebug() << "Not found average coords";
         return;
     }
 
@@ -29,9 +31,11 @@ void FileHandler::processFile(const QString& filePath, QString pointName, const 
     if (pointName.isEmpty()) {
         pointName = formattedDateTime;
     }
-
-    QString localFile(QUrl(filePath).toLocalFile());
-    QFile file(localFile);
+#ifdef PLATFORM_ANDROID
+    QFile file(filePath);
+#else
+    QFile file(QUrl(filePath).toLocalFile());
+#endif
     if (file.exists()) {
         addToExistingFile(&file, pointName, pointDescription);
     } else {
@@ -42,14 +46,21 @@ void FileHandler::processFile(const QString& filePath, QString pointName, const 
 void FileHandler::addToExistingFile(QFile* file, QString& pointName, const QString& pointDescription)
 {
     if (!file->open(QIODevice::ReadWrite | QIODevice::Text)) {
-        qDebug() << "Failed to open file";
+//        qDebug() << "Failed to open file";
+        emit error(tr("Failed to open file"));
         return;
     }
     QString xmlData = file->readAll();
     file->close();
 
+    if (xmlData.isEmpty()) {
+        file->close();
+        addToNewFile(file, pointName, pointDescription);
+        return;
+    }
     int pos = xmlData.indexOf("</Document>");
     if (pos == -1) {
+        emit error(tr("Invalid file format\nTry to write to a new file"));
         return;
     }
 
@@ -76,7 +87,8 @@ void FileHandler::addToExistingFile(QFile* file, QString& pointName, const QStri
     );
 
     if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug() << "Failed to open file for writing";
+        emit error(tr("Failed to open file"));
+//        qDebug() << "Failed to open file for writing";
         return;
     }
 
@@ -84,13 +96,15 @@ void FileHandler::addToExistingFile(QFile* file, QString& pointName, const QStri
     out << xmlData;
 
     file->close();
-    qDebug() << "Elements successfully inserted!";
+    emit success(tr("Point added successfully"));
+//    qDebug() << "Elements successfully inserted!";
 }
 
 void FileHandler::addToNewFile(QFile* file, QString& pointName, const QString& pointDescription)
 {
     if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug() << "Failed to open file";
+        emit error(tr("Failed to open file"));
+//        qDebug() << "Failed to open file";
         return;
     }
 
@@ -150,5 +164,6 @@ void FileHandler::addToNewFile(QFile* file, QString& pointName, const QString& p
     xmlWriter.writeEndDocument();
 
     file->close();
-    qDebug() << "File successfully created!";
+    emit success(tr("File created successfully"));
+//    qDebug() << "File successfully created!";
 }
