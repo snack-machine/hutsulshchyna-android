@@ -1,10 +1,9 @@
 
 #include "coord-handler.h"
 
-#include <QDebug>
 #include <QTime>
-
 //const QRegularExpression CoordHandler::regex("^\\$.{2}GGA");
+//#include <QDebug>
 
 CoordHandler::CoordHandler(QObject* parent)
     : QObject{parent}, d_averageLat{0}, d_averageLong{0}, d_averageAlt{0}, size{0}
@@ -13,36 +12,6 @@ CoordHandler::CoordHandler(QObject* parent)
 
 void CoordHandler::parseGPGAA()
 {
-//    time = QString::number(GPGGA.time);
-
-//    if(GPGGA.time < 100000)
-//        time.push_front('0');
-//    time.push_back("00");
-
-//    time[7] = time.at(5);
-//    time[6] = time.at(4);
-//    time[5] = ':';
-//    time[4] = time.at(3);
-//    time[3] = time.at(2);
-//    time[2] = ':';
-//    time.push_back("  ");
-
-//    latitude = QString::number(GPGGA.latitude, 'g', 9) + GPGGA.lat;
-//    longitude = QString::number(GPGGA.longitude, 'g', 9) + GPGGA.lon;
-//    altitude = QString::number(GPGGA.altitude, 'f', 2) + GPGGA.alt;
-////    satelits = QString::number(GPGGA.nka);
-
-//    d_averageLat  = (GPGGA.latitude  + d_averageLat * size) / (size + 1);
-//    d_averageLong = (GPGGA.longitude + d_averageLat * size) / (size + 1);
-//    d_averageAlt = (GPGGA.altitude + d_averageAlt * size) / (size + 1);
-//    size++;
-
-////    visual_coord->Set_Average_Slot(A_Lat, A_Long);
-//    averageLat = QString::number(d_averageLat, 'f', 2);
-//    averageLong = QString::number(d_averageLong, 'g', 9);
-//    averageAlt  = QString::number(d_averageAlt, 'g', 9);
-//    emit coordChanged();
-
     latitude = QString::number(gpgga.latitude, 'g', 9) + gpgga.lat;
     longitude = QString::number(gpgga.longitude, 'g', 9) + gpgga.lon;
     altitude = QString::number(gpgga.altitude, 'f', 2) + gpgga.alt;
@@ -53,22 +22,16 @@ void CoordHandler::parseGPGAA()
     d_averageAlt = (gpgga.altitude + d_averageAlt * size) / (size + 1);
     size++;
 
-    //    visual_coord->Set_Average_Slot(A_Lat, A_Long);
     averageLat = QString::number(d_averageLat, 'g', 9);
     averageLong = QString::number(d_averageLong, 'g', 9);
     averageAlt  = QString::number(d_averageAlt, 'f', 2);
     emit coordChanged();
-//    Average_Alt_VL->setText(Average_Alt + GPGGA.h_antena);
 
 //    double RMS_Lat =  (this->A_Lat  - GPGGA.latitude)*Grad_to_M;
 //    double RMS_Long = (this->A_Long - GPGGA.longitude) *Grad_to_M*cos(this->A_Lat);
-
 //    double Distance = RMS_Lat*RMS_Lat + RMS_Long*RMS_Long;
-
 //    RMS = (Distance + RMS*(size-1))/size;
-
 //    RMS_VL->setText(QString::number(sqrt(RMS), 'g', 2));
-
 //    switch(GPGGA.observation)
 //    {
 //    case 0:
@@ -86,7 +49,6 @@ void CoordHandler::parseGPGAA()
 //    }
 //    Dost_VL->setText(this->Dost);
 //    Dost_VL->setFont(FON);
-
 //    visual_coord->animate(GPGGA);
 }
 
@@ -116,6 +78,22 @@ void CoordHandler::setCenter()
 
 //    Lat_Spinbox ->setValue(A_Lat);
 //    Long_Spinbox->setValue(A_Long);
+}
+
+void CoordHandler::clearData()
+{
+    latitude.clear();
+    longitude.clear();
+    altitude.clear();
+
+    d_averageLat = 0;
+    d_averageLong = 0;
+    d_averageAlt = 0;
+    size = 0;
+
+    averageLat.clear();
+    averageLong.clear();
+    averageAlt.clear();
 }
 
 void CoordHandler::getPortMessageSlot(const QByteArray& data)

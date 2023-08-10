@@ -3,61 +3,91 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 ScrollView {
+//    anchors.fill: parent
     property string name: pointName.text
     property string description: pointDescription.text
     contentWidth: stackView.width
     contentHeight: columnLayout.implicitHeight
+
     ColumnLayout {
         id: columnLayout
         anchors.horizontalCenter: parent.horizontalCenter
-        Item {
-            height: 10
-        }
         GridLayout {
             columns: 6
             Layout.alignment: Qt.AlignHCenter
-            Text { text: qsTr("Current coordinates"); Layout.alignment: Qt.AlignHCenter; Layout.columnSpan: 6}
-            Text { text: qsTr("Latitude:") }
-            Text { id: currentLat; text: coordHandler.latitude }
-            Text { text: qsTr("Longitude:") }
-            Text { id: currentLong; text: coordHandler.longitude }
-            Text { text: qsTr("Altitude:") }
-            Text { id: currentAlt; text: coordHandler.altitude }
-            Text { text: qsTr("Time:") }
-            Text { id: timeValue; text: coordHandler.time }
-            Text { text: qsTr("Satelits:") }
-            Text { id: sataleits; text: coordHandler.satelits }
-            Text { text: qsTr("RMSD:") }
-            Text { id: rmsd; text: "0" }
-    //                    Text { id: positionModeStatus; text: "No data"; Layout.columnSpan: 4 }
+            Text {
+                Layout.topMargin: 10
+                Layout.alignment: Qt.AlignHCenter;
+                Layout.columnSpan: 6
+                text: qsTr("Current coordinates");
+                font.pixelSize: 16
+                font.bold: true
+            }
+            Text {
+                Layout.columnSpan: 3
+                property string lat: coordHandler.latitude
+                text: qsTr("Latitude:") + lat }
+            Text {
+                Layout.columnSpan: 3
+                property string lon: coordHandler.longitude
+                text: qsTr("Longitude:" + lon )
+            }
+            Text {
+                Layout.columnSpan: 3
+                property string timeValue: coordHandler.time
+                text: qsTr("Time:" + timeValue)
+            }
+            Text {
+                Layout.columnSpan: 3
+                property string currentAlt: coordHandler.altitude
+                text: qsTr("Altitude:" + currentAlt)
+            }
 
-            Text { text: qsTr("Average coordinates"); Layout.alignment: Qt.AlignHCenter; Layout.columnSpan: 6}
-            Text { text: qsTr("Latitude:") }
-            Text { id: averageLat; text: coordHandler.averageLat }
-            Text { text: qsTr("Longitude:") }
-            Text { id: averageLong; text: coordHandler.averageLong }
-            Text { text: qsTr("Altitude:")}
-            Text { id: averageAlt; text: coordHandler.averageAlt}
-        }
-        Item {
-            height: 10
+            Text {
+                Layout.alignment: Qt.AlignHCenter;
+                Layout.columnSpan: 6
+                text: qsTr("Average coordinates");
+                font.pixelSize: 16
+                font.bold: true
+            }
+            Text {
+                Layout.columnSpan: 3
+                property string averageLat: coordHandler.averageLat
+                text: qsTr("Latitude:" + averageLat)
+            }
+            Text {
+                Layout.columnSpan: 3
+                property string averageLong: coordHandler.averageLong
+                text: qsTr("Longitude:") + averageLong
+            }
+            Text {
+                Layout.columnSpan: 3
+                Layout.bottomMargin: 10
+                property string averageAlt: coordHandler.averageAlt
+                text: qsTr("Altitude:") + averageAlt
+            }
         }
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
             Button {
                 id: setCenterButton
                 text: qsTr("Set Center")
-                onClicked: {}
+                onClicked: {
+                    toast.show("Sentered", 2000, "#222222");
+                }
             }
-            Text { text: qsTr("Scale") }
-            SpinBox {
-                from: 1
-                to: 30
-            }
+//            Text { text: qsTr("Scale") }
+//            SpinBox {
+//                from: 1
+//                to: 30
+//            }
             Button {
                 id: clearButton
                 text: qsTr("Clear")
-                onClicked: {}
+                onClicked: {
+                    coordHandler.clearData();
+                    toast.show("Cleared", 2000, "#222222");
+                }
             }
         }
         Rectangle {
@@ -82,7 +112,7 @@ ScrollView {
             placeholderText: qsTr("Enter point description")
         }
 
-        RoundButton {
+        Button {
             Layout.margins: 5
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             text: "Save to file"

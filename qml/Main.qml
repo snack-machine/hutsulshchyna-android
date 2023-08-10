@@ -9,9 +9,38 @@ import FileHandler
 ApplicationWindow {
     id: window
     width: 400
-    height: 620
+    height: 640
     visible: true
     title: "Hutsulschyna"
+
+    readonly property string settingsFile: (Qt.platform.os === "android")?"qrc:/hutsulshchyna-android/qml/serialport-settings-android.qml":"qrc:/hutsulshchyna-android/qml/serialport-settings.qml"
+
+    function getSerialPortSettingsQMLPath() {
+        if (Qt.platform.os === "android") {
+            return "qrc:/hutsulshchyna-android/qml/serialport-settings-android.qml";
+        } else {
+            return "qrc:/hutsulshchyna-android/qml/serialport-settings.qml";
+        }
+    }
+
+    Connections {
+        target: fileHandler
+        function onError(msg) {
+            toast.show(msg, 3000, "#FF0000");
+        }
+        function onSuccess(msg) {
+            toast.show(msg, 3000, "#50C878");
+        }
+    }
+    Connections {
+        target: portHandler
+        function onError(msg) {
+            toast.show(msg, 3000, "#FF0000");
+        }
+        function onSuccess(msg) {
+            toast.show(msg, 3000, "#50C878");
+        }
+    }
 
     Action {
         id: navigateBackAction
@@ -45,10 +74,10 @@ ApplicationWindow {
 //                stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
 //            }
             if (stackView.depth > 1) {
-                stackView.pop()
+                stackView.pop();
             }
-            listView.currentIndex = 0
-            stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
+            listView.currentIndex = 0;
+            stackView.push(window.settingsFile);
         }
     }
 
@@ -63,32 +92,26 @@ ApplicationWindow {
         RowLayout {
             spacing: 5
             anchors.fill: parent
-
             ToolButton {
                 action: navigateBackAction
             }
-
-            Item {
-                width: 20
-            }
-
             Label {
                 id: titleLabel
+                Layout.leftMargin: 20
                 text: listView.currentItem ? listView.currentItem.text : qsTr("Coordinates")
                 font.pixelSize: 20
                 Layout.fillWidth: true
             }
             ToolButton {
+                Layout.alignment: Qt.AlignRight
                 action: openSerialPortAction
             }
             ToolButton {
+                Layout.alignment: Qt.AlignRight
                 action: settingsSerialPortAction
             }
-            Item {
-                width: 20
-            }
-
             ToolButton {
+                Layout.alignment: Qt.AlignRight
                 action: optionsMenuAction
             }
         }
@@ -118,6 +141,8 @@ ApplicationWindow {
             delegate: ItemDelegate {
                 width: listView.width
                 text: model.title
+                font.pixelSize: 18
+                font.bold: true
                 highlighted: ListView.isCurrentItem
                 onClicked: {
                     listView.currentIndex = index
@@ -127,11 +152,17 @@ ApplicationWindow {
             }
 
             model: ListModel {
-                ListElement { title: qsTr("Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings.qml" }
+                // delete "-android" for desktop version
+                ListElement { title: qsTr("Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings-android.qml" }
+//                ListElement { title: qsTr("Port Settings"); source: window.settingsFile }
                 ListElement { title: qsTr("Terminal"); source: "qrc:/hutsulshchyna-android/qml/terminal.qml" }
             }
             ScrollIndicator.vertical: ScrollIndicator { }
         }
+    }
+
+    ToastManager {
+        id: toast
     }
 
     StackView {
@@ -182,14 +213,14 @@ ApplicationWindow {
         }
     }
 
-    FileDialog {
-        id: openDialog
-        fileMode: FileDialog.OpenFile
-        nameFilters: ["KML files (*.kml)", "All files (*)"]
-        title: qsTr("Open File")
+//    FileDialog {
+//        id: openDialog
+//        fileMode: FileDialog.OpenFile
+//        nameFilters: ["KML files (*.kml)", "All files (*)"]
+//        title: qsTr("Open File")
 
-        onAccepted: {
-            fileHandler.processFile(selectedFile, stackView.initialItem.name, stackView.initialItem.description);
-        }
-    }
+//        onAccepted: {
+//            fileHandler.processFile(selectedFile, stackView.initialItem.name, stackView.initialItem.description);
+//        }
+//    }
 }

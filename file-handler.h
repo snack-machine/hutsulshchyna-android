@@ -15,6 +15,10 @@ public:
 
     Q_INVOKABLE void processFile(const QString&, QString, const QString&);
 
+Q_SIGNALS:
+    void error(const QString& message);
+    void success(const QString& message);
+
 private:
     void addToExistingFile(QFile*, QString&, const QString&);
     void addToNewFile(QFile*, QString&, const QString&);
