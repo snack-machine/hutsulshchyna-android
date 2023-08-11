@@ -33,7 +33,6 @@ class CoordHandler : public QObject
 //        uint8_t  nka;
 //    };
     struct GPGGA{
-        double  time;
         double  latitude;
         double  longitude;
         double  altitude;

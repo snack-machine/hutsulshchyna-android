@@ -26,21 +26,21 @@ ScrollView {
             Text {
                 Layout.columnSpan: 3
                 property string lat: coordHandler.latitude
-                text: qsTr("Latitude:") + lat }
+                text: qsTr("Latitude: ") + lat }
             Text {
                 Layout.columnSpan: 3
                 property string lon: coordHandler.longitude
-                text: qsTr("Longitude:" + lon )
+                text: qsTr("Longitude: " + lon )
             }
             Text {
                 Layout.columnSpan: 3
                 property string timeValue: coordHandler.time
-                text: qsTr("Time:" + timeValue)
+                text: qsTr("Time: " + timeValue)
             }
             Text {
                 Layout.columnSpan: 3
                 property string currentAlt: coordHandler.altitude
-                text: qsTr("Altitude:" + currentAlt)
+                text: qsTr("Altitude: " + currentAlt)
             }
 
             Text {
@@ -53,18 +53,18 @@ ScrollView {
             Text {
                 Layout.columnSpan: 3
                 property string averageLat: coordHandler.averageLat
-                text: qsTr("Latitude:" + averageLat)
+                text: qsTr("Latitude: " + averageLat)
             }
             Text {
                 Layout.columnSpan: 3
                 property string averageLong: coordHandler.averageLong
-                text: qsTr("Longitude:") + averageLong
+                text: qsTr("Longitude: ") + averageLong
             }
             Text {
                 Layout.columnSpan: 3
                 Layout.bottomMargin: 10
                 property string averageAlt: coordHandler.averageAlt
-                text: qsTr("Altitude:") + averageAlt
+                text: qsTr("Altitude: ") + averageAlt
             }
         }
         RowLayout {
@@ -98,6 +98,11 @@ ScrollView {
             implicitWidth: 300
             implicitHeight: 300
             color: "blue"
+            Image {
+                anchors.fill: parent // Fill the entire rectangle
+                source: "qrc:/hutsulshchyna-android/icons/coords.png" // Replace with the actual path to your image
+                fillMode: Image.PreserveAspectFit // Adjust the fill mode as needed
+            }
         }
         TextField {
             id: pointName

@@ -14,7 +14,7 @@
 #include "serialport-handler.h"
 #endif
 
-#include <QDebug>
+//#include <QDebug>
 
 #ifdef PLATFORM_ANDROID
 namespace JavaPart {

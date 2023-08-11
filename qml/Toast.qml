@@ -72,6 +72,7 @@ Rectangle {
         color: "white"
         wrapMode: Text.Wrap
         horizontalAlignment: Text.AlignHCenter
+        font.bold: true
         anchors {
             top: parent.top
             left: parent.left

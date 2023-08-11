@@ -94,6 +94,9 @@ void CoordHandler::clearData()
     averageLat.clear();
     averageLong.clear();
     averageAlt.clear();
+
+    time.clear();
+    emit coordChanged();
 }
 
 void CoordHandler::getPortMessageSlot(const QByteArray& data)

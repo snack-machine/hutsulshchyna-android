@@ -115,7 +115,7 @@ ScrollView  {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             text: "Accept"
             onClicked: {
-                let qwe = portHandler.openSerialPort();
+//                let qwe = portHandler.openSerialPort();
                 if (portName.currentIndex !== -1 && !portHandler.portOpen) {
                     portHandler.portName = portName.currentValue;
                     portHandler.baudRate = baudRate.currentValue;

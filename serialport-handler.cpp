@@ -46,15 +46,16 @@ QSerialPort::SerialPortError SerialPortHandler::openSerialPort()
           && m_port->setStopBits(portSettings.stopBits)
           && m_port->setFlowControl(portSettings.flowControl)))
     {
-        emit error("Can't set serial port settings");
+        emit error(tr("Can't set serial port settings"));
         return QSerialPort::NotOpenError;
     }
     if (!m_port->open(QIODevice::ReadOnly)) {
-        emit error("Can't open serial port");
+        emit error(tr("Can't open serial port"));
         return QSerialPort::OpenError;
     }
     qDebug() << portSettings.name;  // <--
     emit portStateChanged();
+    emit success(tr("Port opened"));
     return QSerialPort::NoError;
 }
 
@@ -62,12 +63,14 @@ void SerialPortHandler::handlePortError()
 {
     closeSerialPort();
     emit error(tr("Critical Resource Error"));
+    emit error(tr("Port closed"));
 }
 
 void SerialPortHandler::closeSerialPort()
 {
     m_port->close();
     emit portStateChanged();
+    emit success(tr("Port closed"));
 }
 
 bool SerialPortHandler::getPortStatus() const
