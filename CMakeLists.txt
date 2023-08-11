@@ -11,16 +11,13 @@ qt_standard_project_setup()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Android")
     set(SOURCE_FILES "serialport-handler-android.cpp" "serialport-handler-android.h")
-    set(QML_FILE "qml/serialport-settings-android.qml")
     add_definitions(-DPLATFORM_ANDROID)
 else()
     set(SOURCE_FILES "serialport-handler.cpp" "serialport-handler.h")
-    set(QML_FILE "qml/serialport-settings.qml")
 endif()
 
 qt_add_executable(apphutsulshchyna-android
     main.cpp
-#    serialport-handler.cpp serialport-handler.h
     coord-handler.cpp coord-handler.h
     file-handler.h file-handler.cpp
     ${SOURCE_FILES}
@@ -33,19 +30,20 @@ qt_add_qml_module(apphutsulshchyna-android
     QML_FILES
         "qml/Main.qml"
         "qml/InitialItem.qml"
-        ${QML_FILE}
-#        "qml/serialport-settings.qml"
-#        "qml/serialport-settings-android.qml"
+        "qml/serialport-settings.qml"
+        "qml/+android/serialport-settings.qml"
         "qml/terminal.qml"
         "qml/Toast.qml"
         "qml/ToastManager.qml"
     RESOURCES
-        "icons/back.png"
-        "icons/drawer.png"
-        "icons/menu.png"
-        "icons/disconnected.png"
-        "icons/connected.png"
-        "icons/settings.png"
+        "icons/disconnected.svg"
+        "icons/connected.svg"
+        "icons/coords.png"
+        "icons/header.jpg"
+        "icons/menu-vertical.svg"
+        "icons/menu-burger.svg"
+        "icons/arrow-back.svg"
+        "icons/settings.svg"
 )
 
 set_target_properties(apphutsulshchyna-android PROPERTIES

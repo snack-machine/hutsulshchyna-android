@@ -84,6 +84,7 @@ public:
 Q_SIGNALS:
     void portDataRead(const QByteArray&);
     void error(const QString &message);
+    void success(const QString& message);
     void portListChanged();
     void portNameChanged();
     void baudRateChanged();

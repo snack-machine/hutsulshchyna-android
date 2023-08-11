@@ -33,7 +33,6 @@ class CoordHandler : public QObject
 //        uint8_t  nka;
 //    };
     struct GPGGA{
-        double  time;
         double  latitude;
         double  longitude;
         double  altitude;
@@ -58,6 +57,12 @@ public:
     const QString& getAverageAlt() const { return averageAlt; };
     //    const QString& getDost() const { return dost; };
 
+public Q_SLOTS:
+    void getPortMessageSlot(const QByteArray& data);
+
+Q_SIGNALS:
+    void coordChanged();
+
 private:
 //    static const QRegularExpression regex;
     double ddmmToDegrees(double value);
@@ -73,19 +78,13 @@ private:
     QString averageLong;
     QString averageLat;
     QString averageAlt;
-//    QString dost;
+    //    QString dost;
 
     double d_averageLat;
     double d_averageLong;
     double d_averageAlt;
     unsigned int size;
     //    double rmsd;
-
-public Q_SLOTS:
-    void getPortMessageSlot(const QByteArray& data);
-
-Q_SIGNALS:
-    void coordChanged();
 };
 
 #endif // COORDHANDLER_H

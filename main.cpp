@@ -14,7 +14,7 @@
 #include "serialport-handler.h"
 #endif
 
-#include <QDebug>
+//#include <QDebug>
 
 #ifdef PLATFORM_ANDROID
 namespace JavaPart {
@@ -64,8 +64,6 @@ static void handlePortData(JNIEnv* env, jobject thiz, jbyteArray value)
 
     env->ReleaseByteArrayElements(value, byteArrayElements, JNI_ABORT);
 }
-
-
 
 static void handlePortError(JNIEnv* env, jobject thiz, jstring value)
 {
@@ -131,6 +129,11 @@ int main(int argc, char *argv[])
 #endif
 
     QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::getPortMessageSlot);
+//    QObject::connect(&app, &QGuiApplication::applicationStateChanged, [&app, &serialPortHandler](Qt::ApplicationState state){
+//        if (state == Qt::ApplicationSuspended) {
+//            serialPortHandler.writeSettings();
+//        }
+//    });
 
     qmlRegisterUncreatableMetaObject(
         SerialPortENUM::staticMetaObject,   // meta object created by Q_NAMESPACE macro

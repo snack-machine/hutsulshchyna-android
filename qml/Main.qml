@@ -9,19 +9,9 @@ import FileHandler
 ApplicationWindow {
     id: window
     width: 400
-    height: 640
+    height: 680
     visible: true
     title: "Hutsulschyna"
-
-    readonly property string settingsFile: (Qt.platform.os === "android")?"qrc:/hutsulshchyna-android/qml/serialport-settings-android.qml":"qrc:/hutsulshchyna-android/qml/serialport-settings.qml"
-
-    function getSerialPortSettingsQMLPath() {
-        if (Qt.platform.os === "android") {
-            return "qrc:/hutsulshchyna-android/qml/serialport-settings-android.qml";
-        } else {
-            return "qrc:/hutsulshchyna-android/qml/serialport-settings.qml";
-        }
-    }
 
     Connections {
         target: fileHandler
@@ -45,29 +35,29 @@ ApplicationWindow {
     Action {
         id: navigateBackAction
         icon.name: stackView.depth > 1 ? "back" : "drawer"
-        icon.source: stackView.depth > 1 ? "qrc:/hutsulshchyna-android/icons/back.png" : "qrc:/hutsulshchyna-android/icons/drawer.png"
+        icon.source: stackView.depth > 1 ? "qrc:/hutsulshchyna-android/icons/arrow-back.svg" : "qrc:/hutsulshchyna-android/icons/menu-burger.svg"
         onTriggered: {
             if (stackView.depth > 1) {
-                stackView.pop()
-                listView.currentIndex = -1
+                stackView.pop();
+                listView.currentIndex = -1;
             } else {
-                drawer.open()
+                drawer.open();
             }
         }
     }
 
     Action {
         id: openSerialPortAction
-        icon.source: portHandler.portOpen ? "qrc:/hutsulshchyna-android/icons/connected.png" : "qrc:/hutsulshchyna-android/icons/disconnected.png"
+        icon.source: portHandler.portOpen ? "qrc:/hutsulshchyna-android/icons/connected.svg" : "qrc:/hutsulshchyna-android/icons/disconnected.svg"
         onTriggered: {
-            portHandler.portOpen ? portHandler.closeSerialPort() : portHandler.openSerialPort()
+            portHandler.portOpen ? portHandler.closeSerialPort() : portHandler.openSerialPort();
         }
     }
 
     Action {
         id: settingsSerialPortAction
         icon.name: "settings"
-        icon.source: "qrc:/hutsulshchyna-android/icons/settings.png"
+        icon.source: "qrc:/hutsulshchyna-android/icons/settings.svg"
         onTriggered: {
 //            if (stackView.depth === 1){
 //                listView.currentIndex = 0
@@ -77,14 +67,15 @@ ApplicationWindow {
                 stackView.pop();
             }
             listView.currentIndex = 0;
-            stackView.push(window.settingsFile);
+            listView.itemText = qsTr("Port Settings");
+            stackView.push("serialport-settings.qml");
         }
     }
 
     Action {
         id: optionsMenuAction
         icon.name: "menu"
-        icon.source: "qrc:/hutsulshchyna-android/icons/menu.png"
+        icon.source: "qrc:/hutsulshchyna-android/icons/menu-vertical.svg"
         onTriggered: {}
     }
 
@@ -98,7 +89,7 @@ ApplicationWindow {
             Label {
                 id: titleLabel
                 Layout.leftMargin: 20
-                text: listView.currentItem ? listView.currentItem.text : qsTr("Coordinates")
+                text: listView.currentItem ? listView.itemText : qsTr("Coordinates")
                 font.pixelSize: 20
                 Layout.fillWidth: true
             }
@@ -111,6 +102,7 @@ ApplicationWindow {
                 action: settingsSerialPortAction
             }
             ToolButton {
+                Layout.leftMargin: 5
                 Layout.alignment: Qt.AlignRight
                 action: optionsMenuAction
             }
@@ -128,41 +120,61 @@ ApplicationWindow {
             focus: true
             currentIndex: -1
             anchors.fill: parent
+            property string itemText: ""
 
             header: Component {
-                Rectangle {
-                    id: drawerHeader
+                Image {
                     height: drawer.height * 0.2
                     width: parent.width
-                    color: "green"
+                    source: "qrc:/hutsulshchyna-android/icons/header.jpg"
+                    fillMode: Image.Stretch
+                    Rectangle {
+                        width: parent.width
+                        height: 1
+                        color: "#47652F"
+                        anchors.bottom: parent.bottom
+                    }
                 }
             }
-
             delegate: ItemDelegate {
+                id: control
                 width: listView.width
-                text: model.title
-                font.pixelSize: 18
-                font.bold: true
+                contentItem: Text {
+                    text: model.title
+                    color: "#47652F"
+                    font.pixelSize: 18
+                    font.bold: true
+                }
                 highlighted: ListView.isCurrentItem
                 onClicked: {
-                    listView.currentIndex = index
-                    stackView.push(model.source)
-                    drawer.close()
+                    listView.currentIndex = index;
+                    stackView.push(model.source);
+                    drawer.close();
+                    listView.itemText = model.title;
                 }
-            }
+//                background: Rectangle {
+//                    width: listView.width
+//                    implicitHeight: 40
+//                    opacity: enabled ? 1 : 0.3
+//                    color: control.down ? "#dddedf" : "#eeeeee"
 
+//                    Rectangle {
+//                        width: parent.width
+//                        height: 1
+//                        color: control.down ? "#17a81a" : "#21be2b"
+//                        anchors.bottom: parent.bottom
+//                    }
+//                }
+            }
             model: ListModel {
-                // delete "-android" for desktop version
-                ListElement { title: qsTr("Port Settings"); source: "qrc:/hutsulshchyna-android/qml/serialport-settings-android.qml" }
-//                ListElement { title: qsTr("Port Settings"); source: window.settingsFile }
-                ListElement { title: qsTr("Terminal"); source: "qrc:/hutsulshchyna-android/qml/terminal.qml" }
+                property var _data: [
+                    { title: qsTr("Port Settings"), source: "serialport-settings.qml" },
+                    { title: qsTr("Terminal"), source: "terminal.qml" }
+                ]
+                Component.onCompleted: { for (let obj of _data) append(obj) }
             }
             ScrollIndicator.vertical: ScrollIndicator { }
         }
-    }
-
-    ToastManager {
-        id: toast
     }
 
     StackView {
@@ -171,30 +183,9 @@ ApplicationWindow {
         initialItem: InitialItem {}
     }
 
-    Rectangle {
-        id: infoWindow
-        width: 200
-        height: 60
-        color: "lightgreen"
-        border.color: "darkgreen"
-        radius: 10
-        visible: false
-
-        Text {
-            anchors.centerIn: parent
-            text: "Operation successful!"
-            font.pixelSize: 16
-            color: "black"
-        }
-
-        Timer {
-            id: timer
-            interval: 2000
-            repeat: false
-            onTriggered: infoWindow.visible = false
-        }
+    ToastManager {
+        id: toast
     }
-
 
     FileDialog {
         id: saveDialog
@@ -212,15 +203,4 @@ ApplicationWindow {
             fileHandler.processFile(selectedFile, stackView.initialItem.name, stackView.initialItem.description);
         }
     }
-
-//    FileDialog {
-//        id: openDialog
-//        fileMode: FileDialog.OpenFile
-//        nameFilters: ["KML files (*.kml)", "All files (*)"]
-//        title: qsTr("Open File")
-
-//        onAccepted: {
-//            fileHandler.processFile(selectedFile, stackView.initialItem.name, stackView.initialItem.description);
-//        }
-//    }
 }

@@ -53,14 +53,13 @@ public class PortWrapper implements SerialInputOutputManager.Listener {
         };
     }
 
-    private int connect() {
+    private int connect(int baudRate, int dataBits, int stopBits, int parity) {
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
         
         if (availableDrivers.isEmpty()) {
             errorToCpp("Connection failed: device not found");
             return -1;
-            // showToast(context, "connection failed: device not found");
         }
 
         UsbSerialDriver driver = availableDrivers.get(0);
@@ -83,9 +82,13 @@ public class PortWrapper implements SerialInputOutputManager.Listener {
         try {
             usbPort.open(usbConnection);
             try{
-                usbPort.setParameters(9600, 8, 1, UsbSerialPort.PARITY_NONE);
+                // usbPort.setParameters(9600, 8, 1, UsbSerialPort.PARITY_NONE);
+                usbPort.setParameters(baudRate, dataBits, stopBits, parity);
             } catch (UnsupportedOperationException e) {
                 // status("unsupport setparameters");
+                disconnect();
+                errorToCpp("Unsupport setparameters");
+                return -1;
             }
             if(withIoManager) {
                 usbIoManager = new SerialInputOutputManager(usbPort, this);
@@ -116,9 +119,6 @@ public class PortWrapper implements SerialInputOutputManager.Listener {
 
     @Override
     public void onRunError(Exception e) {
-        // mainLooper.post(() -> {
-        //     status("connection lost: " + e.getMessage());
-        // });
         disconnect();
         errorToCpp("Connection lost: " + e.getMessage());
     }
