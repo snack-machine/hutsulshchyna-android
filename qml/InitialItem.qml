@@ -3,71 +3,65 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 ScrollView {
-//    anchors.fill: parent
     property string name: pointName.text
     property string description: pointDescription.text
+    property bool userConfirmed: false
     contentWidth: stackView.width
     contentHeight: columnLayout.implicitHeight
-
-    ColumnLayout {
+    GridLayout {
         id: columnLayout
-        anchors.horizontalCenter: parent.horizontalCenter
-        GridLayout {
-            columns: 6
-            Layout.alignment: Qt.AlignHCenter
-            Text {
-                Layout.topMargin: 10
-                Layout.alignment: Qt.AlignHCenter;
-                Layout.columnSpan: 6
-                text: qsTr("Current coordinates");
-                font.pixelSize: 16
-                font.bold: true
-            }
-            Text {
-                Layout.columnSpan: 3
-                property string lat: coordHandler.latitude
-                text: qsTr("Latitude: ") + lat }
-            Text {
-                Layout.columnSpan: 3
-                property string lon: coordHandler.longitude
-                text: qsTr("Longitude: " + lon )
-            }
-            Text {
-                Layout.columnSpan: 3
-                property string timeValue: coordHandler.time
-                text: qsTr("Time: " + timeValue)
-            }
-            Text {
-                Layout.columnSpan: 3
-                property string currentAlt: coordHandler.altitude
-                text: qsTr("Altitude: " + currentAlt)
-            }
+        anchors.fill: parent
+        columns: 2
+        Text {
+            Layout.topMargin: 10
+            Layout.alignment: Qt.AlignHCenter;
+            Layout.columnSpan: 2
+            text: qsTr("Current coordinates");
+            font.pixelSize: 16
+            font.bold: true
+        }
+        Text {
+            Layout.leftMargin: 20
+            property string lat: coordHandler.latitude
+            text: qsTr("Latitude: ") + lat }
+        Text {
+            property string lon: coordHandler.longitude
+            text: qsTr("Longitude: " + lon )
+        }
+        Text {
+            Layout.leftMargin: 20
+            property string timeValue: coordHandler.time
+            text: qsTr("Time: " + timeValue)
+        }
+        Text {
+            property string currentAlt: coordHandler.altitude
+            text: qsTr("Altitude: " + currentAlt)
+        }
 
-            Text {
-                Layout.alignment: Qt.AlignHCenter;
-                Layout.columnSpan: 6
-                text: qsTr("Average coordinates");
-                font.pixelSize: 16
-                font.bold: true
-            }
-            Text {
-                Layout.columnSpan: 3
-                property string averageLat: coordHandler.averageLat
-                text: qsTr("Latitude: " + averageLat)
-            }
-            Text {
-                Layout.columnSpan: 3
-                property string averageLong: coordHandler.averageLong
-                text: qsTr("Longitude: ") + averageLong
-            }
-            Text {
-                Layout.columnSpan: 3
-                Layout.bottomMargin: 10
-                property string averageAlt: coordHandler.averageAlt
-                text: qsTr("Altitude: ") + averageAlt
-            }
+        Text {
+            Layout.columnSpan: 2
+            Layout.alignment: Qt.AlignHCenter;
+            text: qsTr("Average coordinates");
+            font.pixelSize: 16
+            font.bold: true
+        }
+        Text {
+            Layout.leftMargin: 20
+            property string averageLat: coordHandler.averageLat
+            text: qsTr("Latitude: " + averageLat)
+        }
+        Text {
+            property string averageLong: coordHandler.averageLong
+            text: qsTr("Longitude: ") + averageLong
+        }
+        Text {
+            Layout.leftMargin: 20
+            Layout.bottomMargin: 10
+            property string averageAlt: coordHandler.averageAlt
+            text: qsTr("Altitude: ") + averageAlt
         }
         RowLayout {
+            Layout.columnSpan: 2
             Layout.alignment: Qt.AlignHCenter
             Button {
                 id: setCenterButton
@@ -85,44 +79,93 @@ ScrollView {
                 id: clearButton
                 text: qsTr("Clear")
                 onClicked: {
-                    coordHandler.clearData();
-                    toast.show("Cleared", 2000, "#222222");
+                    popup.open();
                 }
             }
         }
-        Rectangle {
-            id: map
-            anchors.topMargin: 20
+        Image {
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            implicitWidth: 300
-            implicitHeight: 300
-            color: "blue"
-            Image {
-                anchors.fill: parent // Fill the entire rectangle
-                source: "qrc:/hutsulshchyna-android/icons/coords.png" // Replace with the actual path to your image
-                fillMode: Image.PreserveAspectFit // Adjust the fill mode as needed
-            }
+            Layout.alignment: Qt.AlignHCenter
+            Layout.columnSpan: 2
+            source: "qrc:/hutsulshchyna-android/icons/coords.png"
+            fillMode: Image.PreserveAspectFit
         }
         TextField {
             id: pointName
+            Layout.alignment: Qt.AlignHCenter
+            Layout.columnSpan: 2
+            Layout.leftMargin: 20
+            Layout.rightMargin: 20
             Layout.fillWidth: true
             font.pixelSize: 18
             placeholderText: qsTr("Enter point name")
         }
         TextField {
             id: pointDescription
+            Layout.alignment: Qt.AlignHCenter
+            Layout.columnSpan: 2
+            Layout.leftMargin: 20
+            Layout.rightMargin: 20
             Layout.fillWidth: true
             font.pixelSize: 18
             placeholderText: qsTr("Enter point description")
         }
 
         Button {
+            Layout.alignment: Qt.AlignHCenter
+            Layout.columnSpan: 2
             Layout.margins: 5
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-            text: "Save to file"
+            text: qsTr("Save to file")
             onClicked: {
                 saveDialog.open()
+            }
+        }
+
+        Popup {
+            id: popup
+            modal: true
+            focus: true
+            x: (parent.width - implicitWidth) / 2
+            y: (parent.height - implicitHeight) / 2
+            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+            Rectangle {
+                implicitWidth: column.implicitWidth + 10
+                implicitHeight: column.implicitHeight + 10
+                color: "white"
+                Column {
+                    id: column
+                    spacing: 10
+                    anchors.centerIn: parent
+                    Text {
+                        text: "Clear received coordinates?"
+                        font.pixelSize: 18
+                        color: "black"
+                    }
+                    Row {
+                        spacing: 10
+                        anchors.right: parent.right
+                        Layout.alignment: Qt.AlignRight
+                        Button {
+                            Layout.alignment: Qt.AlignRight
+                            text: qsTr("No")
+                            onClicked: {
+                                popup.close()
+                            }
+                        }
+                        Button {
+                            Layout.alignment: Qt.AlignRight
+                            text: qsTr("Yes")
+                            onClicked: {
+                                coordHandler.clearData();
+                                pointName.text = "";
+                                pointDescription.text = "";
+                                toast.show("Cleared", 2000, "#222222");
+                                popup.close()
+                            }
+                        }
+                    }
+                }
             }
         }
     }

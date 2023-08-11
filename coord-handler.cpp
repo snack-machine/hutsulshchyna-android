@@ -12,64 +12,20 @@ CoordHandler::CoordHandler(QObject* parent)
 
 void CoordHandler::parseGPGAA()
 {
-    latitude = QString::number(gpgga.latitude, 'g', 9) + gpgga.lat;
-    longitude = QString::number(gpgga.longitude, 'g', 9) + gpgga.lon;
+    latitude = QString::number(gpgga.latitude, 'g', 8) + gpgga.lat;
+    longitude = QString::number(gpgga.longitude, 'g', 8) + gpgga.lon;
     altitude = QString::number(gpgga.altitude, 'f', 2) + gpgga.alt;
-    //    satelits = QString::number(gpgga.nka);
 
     d_averageLat  = (gpgga.latitude  + d_averageLat * size) / (size + 1);
     d_averageLong = (gpgga.longitude + d_averageLong * size) / (size + 1);
     d_averageAlt = (gpgga.altitude + d_averageAlt * size) / (size + 1);
     size++;
 
-    averageLat = QString::number(d_averageLat, 'g', 9);
-    averageLong = QString::number(d_averageLong, 'g', 9);
+    averageLat = QString::number(d_averageLat, 'g', 8);
+    averageLong = QString::number(d_averageLong, 'g', 8);
     averageAlt  = QString::number(d_averageAlt, 'f', 2);
     emit coordChanged();
-
-//    double RMS_Lat =  (this->A_Lat  - GPGGA.latitude)*Grad_to_M;
-//    double RMS_Long = (this->A_Long - GPGGA.longitude) *Grad_to_M*cos(this->A_Lat);
-//    double Distance = RMS_Lat*RMS_Lat + RMS_Long*RMS_Long;
-//    RMS = (Distance + RMS*(size-1))/size;
-//    RMS_VL->setText(QString::number(sqrt(RMS), 'g', 2));
-//    switch(GPGGA.observation)
-//    {
-//    case 0:
-//        this->Dost = tr("Fix not available\n or invalid.");
-//        break;
-//    case 1:
-//        this->Dost = tr("Position fix valid.\nAutonomous mode.");
-//        break;
-//    case 2:
-//        this->Dost = tr("Position fix valid.\nDifferential mode.");
-//        break;
-//    case 3:
-//        this->Dost = tr("Estimated data\n(extrapolation, dead reckoning)");
-//        break;
-//    }
-//    Dost_VL->setText(this->Dost);
-//    Dost_VL->setFont(FON);
-//    visual_coord->animate(GPGGA);
 }
-
-//void Coord_QW::Clear_Slot()
-//{
-//    this->A_Lat = 0;
-//    this->A_Long = 0;
-//    this->size = 0;
-
-//    Time_VL         ->setText("0");
-//    Long_VL         ->setText("0");
-//    Lat_VL          ->setText("0");
-//    Satelits_VL     ->setText("0");
-//    Dost_VL         ->setText(tr("___________________"));
-//    Average_Long_VL ->setText("0");
-//    Average_Lat_VL  ->setText("0");
-//    RMS_VL          ->setText("0");
-
-//    visual_coord->Set_Average_Slot(0, 0);
-//    visual_coord->repaint();
-//}
 
 void CoordHandler::setCenter()
 {

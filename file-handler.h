@@ -24,7 +24,6 @@ private:
     void addToNewFile(QFile*, QString&, const QString&);
 
     QString formattedDateTime;
-
     CoordHandler* m_coordHandler;
 };
 

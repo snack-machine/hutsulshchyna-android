@@ -65,8 +65,6 @@ static void handlePortData(JNIEnv* env, jobject thiz, jbyteArray value)
     env->ReleaseByteArrayElements(value, byteArrayElements, JNI_ABORT);
 }
 
-
-
 static void handlePortError(JNIEnv* env, jobject thiz, jstring value)
 {
     Q_UNUSED(thiz)
@@ -131,6 +129,11 @@ int main(int argc, char *argv[])
 #endif
 
     QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::getPortMessageSlot);
+//    QObject::connect(&app, &QGuiApplication::applicationStateChanged, [&app, &serialPortHandler](Qt::ApplicationState state){
+//        if (state == Qt::ApplicationSuspended) {
+//            serialPortHandler.writeSettings();
+//        }
+//    });
 
     qmlRegisterUncreatableMetaObject(
         SerialPortENUM::staticMetaObject,   // meta object created by Q_NAMESPACE macro

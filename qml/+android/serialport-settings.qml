@@ -73,30 +73,32 @@ ScrollView  {
             }
             ComboBox {
                 id: baudRate
-                textRole: "text"
-                valueRole: "value"
-                model: [
-                    { value: SerialPort.Baud9600, text: "9600" },
-                    { value: SerialPort.Baud19200, text: "19200" },
-                    { value: SerialPort.Baud38400, text: "38400" },
-                    { value: SerialPort.Baud57600, text: "57600" },
-                    { value: SerialPort.Baud115200, text: "115200" }
-                ]
+                model: [9600, 19200, 38400, 57600, 115200]
+//                textRole: "text"
+//                valueRole: "value"
+//                model: [
+//                    { value: SerialPort.Baud9600, text: "9600" },
+//                    { value: SerialPort.Baud19200, text: "19200" },
+//                    { value: SerialPort.Baud38400, text: "38400" },
+//                    { value: SerialPort.Baud57600, text: "57600" },
+//                    { value: SerialPort.Baud115200, text: "115200" }
+//                ]
             }
             Text {
                 text: qsTr("Data bits:")
             }
             ComboBox {
                 id: dataBits
-                textRole: "text"
-                valueRole: "value"
+//                textRole: "text"
+//                valueRole: "value"
                 currentIndex: 3
-                model: [
-                    { value: SerialPort.Data5, text: "5" },
-                    { value: SerialPort.Data6, text: "6" },
-                    { value: SerialPort.Data7, text: "7" },
-                    { value: SerialPort.Data8, text: "8" }
-                ]
+                model: [5, 6, 7, 8]
+//                model: [
+//                    { value: SerialPort.Data5, text: "5" },
+//                    { value: SerialPort.Data6, text: "6" },
+//                    { value: SerialPort.Data7, text: "7" },
+//                    { value: SerialPort.Data8, text: "8" }
+//                ]
             }
             Text {
                 text: qsTr("Parity:")
@@ -106,11 +108,11 @@ ScrollView  {
                 textRole: "text"
                 valueRole: "value"
                 model: [
-                    { value: SerialPort.NoParity, text: "None" },
-                    { value: SerialPort.EvenParity, text: "Even" },
-                    { value: SerialPort.OddParity, text: "Odd" },
-                    { value: SerialPort.SpaceParity, text: "Space" },
-                    { value: SerialPort.MarkParity, text: "Mark" }
+                    { value: 0, text: "None" },
+                    { value: 2, text: "Even" },
+                    { value: 1, text: "Odd" },
+                    { value: 4, text: "Space" },
+                    { value: 3, text: "Mark" }
                 ]
             }
             Text {
@@ -121,9 +123,9 @@ ScrollView  {
                 textRole: "text"
                 valueRole: "value"
                 model: [
-                    { value: SerialPort.OneStop, text: "1" },
-                    { value: SerialPort.OneAndHalfStop, text: "1.5" },
-                    { value: SerialPort.TwoStop, text: "2" }
+                    { value: 1, text: "1" },
+                    { value: 3, text: "1.5" },
+                    { value: 2, text: "2" }
                 ]
             }
         }
@@ -133,44 +135,35 @@ ScrollView  {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             text: "Accept"
             onClicked: {
-                let qwe = portHandler.openSerialPort();
-//                if (portName.currentIndex !== -1 && !portHandler.portOpen) {
-//                    portHandler.portName = portName.currentValue;
-//                    portHandler.baudRate = baudRate.currentValue;
-//                    portHandler.dataBits = dataBits.currentValue;
-//                    portHandler.parity = parity.currentValue;
-//                    portHandler.stopBits = stopBits.currentValue;
-//                    portHandler.flowControl = flowControl.currentValue;
-//                    let qwe = portHandler.openSerialPort();
-//                    if (qwe === SerialPort.NoError) {
-//                        stackView.pop()
-//                        listView.currentIndex = -1
-//                    }
-//                }
+                portHandler.baudRate = baudRate.currentValue;
+                portHandler.dataBits = dataBits.currentValue;
+                portHandler.parity = parity.currentValue;
+                portHandler.stopBits = stopBits.currentValue;
+                if (!portHandler.portOpen) {
+                    let qwe = portHandler.openSerialPort();
+                    if (qwe === SerialPort.NoError) {
+                        stackView.pop();
+                        listView.currentIndex = -1;
+                    }
+                }
             }
         }
 
-//        Component.onCompleted: {
-//            let temp;
-//            temp = portName.indexOfValue(portHandler.portName);
-//            if (temp !== -1)
-//                portName.currentIndex = temp;
-//            temp = baudRate.indexOfValue(portHandler.baudRate)
-//            if (temp !== -1)
-//                baudRate.currentIndex = temp;
-//            temp = dataBits.indexOfValue(portHandler.dataBits)
-//            if (temp !== -1)
-//                dataBits.currentIndex = temp;
-//            temp = parity.indexOfValue(portHandler.parity)
-//            if (temp !== -1)
-//                parity.currentIndex = temp;
-//            temp = stopBits.indexOfValue(portHandler.stopBits)
-//            if (temp !== -1)
-//                stopBits.currentIndex = temp;
-//            temp = flowControl.indexOfValue(portHandler.flowControl)
-//            if (temp !== -1)
-//                flowControl.currentIndex = temp;
-//        }
+        Component.onCompleted: {
+            let temp;
+            temp = baudRate.indexOfValue(portHandler.baudRate)
+            if (temp !== -1)
+                baudRate.currentIndex = temp;
+            temp = dataBits.indexOfValue(portHandler.dataBits)
+            if (temp !== -1)
+                dataBits.currentIndex = temp;
+            temp = parity.indexOfValue(portHandler.parity)
+            if (temp !== -1)
+                parity.currentIndex = temp;
+            temp = stopBits.indexOfValue(portHandler.stopBits)
+            if (temp !== -1)
+                stopBits.currentIndex = temp;
+        }
     }
 }
 

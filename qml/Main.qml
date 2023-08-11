@@ -9,7 +9,7 @@ import FileHandler
 ApplicationWindow {
     id: window
     width: 400
-    height: 640
+    height: 680
     visible: true
     title: "Hutsulschyna"
 
@@ -102,7 +102,7 @@ ApplicationWindow {
                 action: settingsSerialPortAction
             }
             ToolButton {
-                Layout.leftMargin: 10
+                Layout.leftMargin: 5
                 Layout.alignment: Qt.AlignRight
                 action: optionsMenuAction
             }
@@ -177,14 +177,14 @@ ApplicationWindow {
         }
     }
 
-    ToastManager {
-        id: toast
-    }
-
     StackView {
         id: stackView
         anchors.fill: parent
         initialItem: InitialItem {}
+    }
+
+    ToastManager {
+        id: toast
     }
 
     FileDialog {
