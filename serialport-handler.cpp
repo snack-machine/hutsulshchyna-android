@@ -1,5 +1,5 @@
 #include "serialport-handler.h"
-#include <QDebug> // <--
+//#include <QDebug> // <--
 
 SerialPortHandler::SerialPortHandler(QSettings* s, QObject* parent)
     : QObject(parent), m_port{new QSerialPort(this)}, settings{s}
@@ -13,7 +13,7 @@ SerialPortHandler::SerialPortHandler(QSettings* s, QObject* parent)
         while (m_port->canReadLine()) {
             data = m_port->readLine();
             QString line = QString::fromUtf8(data);
-            qDebug() << "Received line:" << line;
+//            qDebug() << "Received line:" << line;
             emit portDataRead(data);
         }
     });
@@ -53,7 +53,7 @@ QSerialPort::SerialPortError SerialPortHandler::openSerialPort()
         emit error(tr("Can't open serial port"));
         return QSerialPort::OpenError;
     }
-    qDebug() << portSettings.name;  // <--
+//    qDebug() << portSettings.name;  // <--
     emit portStateChanged();
     emit success(tr("Port opened"));
     return QSerialPort::NoError;
@@ -100,6 +100,7 @@ void SerialPortHandler::writeSettings()
     settings->setValue("/stopBits",     portSettings.stopBits);
     settings->setValue("/flowControl",  portSettings.flowControl);
     settings->endGroup();
+    settings->setValue("language", language);
 }
 
 void SerialPortHandler::setPortName(const QString& name)
@@ -148,6 +149,14 @@ void SerialPortHandler::setFlowControl(QSerialPort::FlowControl flowControl)
         return;
     portSettings.flowControl = flowControl;
     emit flowControlChanged();
+}
+
+void SerialPortHandler::setLanguage(SerialPortHandler::Language lang)
+{
+    if (language == lang)
+        return;
+    language = lang;
+    emit languageChanged();
 }
 
 //const QString SerialPortHandler::description(int index) const

@@ -1,11 +1,20 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(hutsulshchyna-android VERSION 0.1 LANGUAGES C CXX)
+project(hutsulshchyna-android VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Core Gui Qml SerialPort QuickControls2)
-#find_package(REQUIRED COMPONENTS CorePrivate)
+find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
+qt_policy(SET QTP0001 OLD)
+
+# to translate app:
+#lupdate . -ts translations/ua/ukrainian.ts
+#lrelease ./translations/ua/ukrainian.ts
 
 qt_standard_project_setup()
 
@@ -44,6 +53,7 @@ qt_add_qml_module(apphutsulshchyna-android
         "icons/menu-burger.svg"
         "icons/arrow-back.svg"
         "icons/settings.svg"
+        "translations/ua/ukrainian.qm"
 )
 
 set_target_properties(apphutsulshchyna-android PROPERTIES

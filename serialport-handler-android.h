@@ -21,6 +21,7 @@ class SerialPortHandler : public QObject
     Q_PROPERTY(QString vendorID READ getVendorID NOTIFY portInfoChanged)
     Q_PROPERTY(QString productID READ getProductID NOTIFY portInfoChanged)
     Q_PROPERTY(bool portOpen READ getPortStatus NOTIFY portStateChanged)
+    Q_PROPERTY(Language language READ getLanguage WRITE setLanguage NOTIFY languageChanged)
 
     struct PortDescription {
         QString productName;
@@ -46,6 +47,11 @@ public:
         PermissionError,
         OpenError,
         SettingsError
+    };
+
+    enum Language {
+        EN = 1,
+        UA
     };
 
     static PortDescription portInfo;
@@ -74,6 +80,9 @@ public:
 
     bool getPortStatus() const { return SerialPortHandler::isPortOpen; };
 
+    void setLanguage(Language);
+    Language getLanguage() const { return language; };
+
     void writeSettings();
 
 Q_SIGNALS:
@@ -89,17 +98,21 @@ Q_SIGNALS:
     void portInfoChanged();
     void portStateChanged();
 
+    void languageChanged();
+
 private:
     void readSettings();
 
     PortSettings portSettings;
     QSettings* settings;
+    Language language;
 };
 
 namespace SerialPortENUM
 {
 Q_NAMESPACE
 Q_ENUM_NS(SerialPortHandler::PortErrors)
+Q_ENUM_NS(SerialPortHandler::Language)
 }
 
 #endif // SERIALPORTHANDLER_H

@@ -74,6 +74,7 @@ void SerialPortHandler::writeSettings()
     settings->setValue("/parity",   portSettings.parity);
     settings->setValue("/stopBits", portSettings.stopBits);
     settings->endGroup();
+    settings->setValue("language", language);
 }
 
 void SerialPortHandler::setBaudRate(int baudRate)
@@ -106,4 +107,12 @@ void SerialPortHandler::setStopBits(int stopBits)
         return;
     portSettings.stopBits = stopBits;
     emit stopBitsChanged();
+}
+
+void SerialPortHandler::setLanguage(SerialPortHandler::Language lang)
+{
+    if (language == lang)
+        return;
+    language = lang;
+    emit languageChanged();
 }
