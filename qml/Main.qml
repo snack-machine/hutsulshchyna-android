@@ -5,13 +5,14 @@ import QtQuick.Layouts
 import SerialPortHandler
 import CoordHandler
 import FileHandler
+import SerialPortENUM
 
 ApplicationWindow {
     id: window
     width: 400
     height: 680
     visible: true
-    title: "Hutsulschyna"
+    title: "Coordinator"
 
     Connections {
         target: fileHandler
@@ -59,16 +60,14 @@ ApplicationWindow {
         icon.name: "settings"
         icon.source: "qrc:/hutsulshchyna-android/icons/settings.svg"
         onTriggered: {
-//            if (stackView.depth === 1){
-//                listView.currentIndex = 0
-//                stackView.push("qrc:/hutsulshchyna-android/qml/serialport-settings.qml")
-//            }
-            if (stackView.depth > 1) {
-                stackView.pop();
+            if (listView.currentIndex !== 0) {
+                if (stackView.depth > 1) {
+                    stackView.pop();
+                }
+                listView.currentIndex = 0;
+                listView.itemText = qsTr("Port Settings");
+                stackView.push("serialport-settings.qml");
             }
-            listView.currentIndex = 0;
-            listView.itemText = qsTr("Port Settings");
-            stackView.push("serialport-settings.qml");
         }
     }
 
@@ -76,7 +75,7 @@ ApplicationWindow {
         id: optionsMenuAction
         icon.name: "menu"
         icon.source: "qrc:/hutsulshchyna-android/icons/menu-vertical.svg"
-        onTriggered: {}
+        onTriggered: optionsMenu.open()
     }
 
     header: ToolBar {
@@ -105,6 +104,21 @@ ApplicationWindow {
                 Layout.leftMargin: 5
                 Layout.alignment: Qt.AlignRight
                 action: optionsMenuAction
+
+                Menu {
+                    id: optionsMenu
+                    x: parent.width - width
+                    transformOrigin: Menu.TopRight
+
+                    Action {
+                        text: qsTr("Settings")
+                        onTriggered: settingsDialog.open()
+                    }
+                    Action {
+                        text: qsTr("About")
+                        onTriggered: aboutDialog.open()
+                    }
+                }
             }
         }
     }
@@ -201,6 +215,98 @@ ApplicationWindow {
 
         onAccepted: {
             fileHandler.processFile(selectedFile, stackView.initialItem.name, stackView.initialItem.description);
+        }
+    }
+
+    Dialog {
+        id: settingsDialog
+        x: Math.round((window.width - width) / 2)
+        y: Math.round(window.height / 6)
+        width: Math.round(Math.min(window.width, window.height) / 3 * 2)
+        modal: true
+        focus: true
+        title: qsTr("Settings")
+
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: {
+            portHandler.language = languageBox.currentIndex + 1;
+            settingsDialog.close();
+        }
+        onRejected: {
+            languageBox.currentIndex = languageBox.langIndex;
+            settingsDialog.close();
+        }
+
+        contentItem: ColumnLayout {
+            id: settingsColumn
+            spacing: 20
+
+            RowLayout {
+                spacing: 10
+
+                Label {
+                    text: qsTr("Language:")
+                }
+                ComboBox {
+                    id: languageBox
+                    Layout.fillWidth: true
+                    textRole: "text"
+                    valueRole: "value"
+                    property int langIndex: -1
+                    model: [
+                        { value: 1, text: qsTr("English") },
+                        { value: 2, text: qsTr("Ukrainian") }
+                    ]
+                    Component.onCompleted: {
+                        langIndex = indexOfValue(portHandler.language);
+                        if (langIndex !== -1)
+                            currentIndex = langIndex;
+                    }
+                }
+            }
+            Label {
+                text: qsTr("Restart required")
+                color: "#e41e25"
+                opacity: languageBox.currentIndex !== languageBox.langIndex ? 1.0 : 0.0
+                horizontalAlignment: Label.AlignHCenter
+                verticalAlignment: Label.AlignVCenter
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+        }
+    }
+
+    Dialog {
+        id: aboutDialog
+        modal: true
+        focus: true
+        title: qsTr("About")
+        x: (window.width - width) / 2
+        y: window.height / 6
+        width: Math.min(window.width, window.height) / 3 * 2
+        contentHeight: aboutColumn.height
+
+        Column {
+            id: aboutColumn
+            spacing: 20
+
+            Label {
+                width: aboutDialog.availableWidth
+                text: qsTr("The application allows you to calculate the coordinates of " +
+                            "the current position more accurately. To do this, you need to leave " +
+                            "the GPS sensor in a stationary position for a while.\n" +
+                            "Point can be saved/added to KML file")
+                wrapMode: Label.Wrap
+                font.pixelSize: 12
+                Layout.alignment: Qt.AlignJustify
+            }
+
+            Label {
+                width: aboutDialog.availableWidth
+                text: qsTr("Source code: https://github.com/Atr0p0s/Coordinator")
+                wrapMode: Label.Wrap
+                font.pixelSize: 12
+            }
         }
     }
 }

@@ -15,7 +15,7 @@ ScrollView  {
         spacing: 5
         Text {
             Layout.topMargin: 10
-            text: "Select Serial Port:"
+            text: qsTr("Select Serial Port:")
         }
         RowLayout {
             Layout.bottomMargin: 10
@@ -24,7 +24,7 @@ ScrollView  {
                 model: portHandler.ports
             }
             Button {
-                text: "Refresh"
+                text: qsTr("Refresh")
                 onClicked: {
                     portHandler.scanPorts();
                 }
@@ -32,13 +32,13 @@ ScrollView  {
         }
         Text {
             Layout.bottomMargin: 5
-            text: "Select Parameters:"
+            text: qsTr("Select Parameters:")
         }
         GridLayout {
             Layout.fillWidth: true
             columns: 2
             Text {
-                text: "Baud rate:"
+                text: qsTr("Baud rate:")
             }
             ComboBox {
                 id: baudRate
@@ -53,7 +53,7 @@ ScrollView  {
                 ]
             }
             Text {
-                text: "Data bits:"
+                text: qsTr("Data bits:")
             }
             ComboBox {
                 id: dataBits
@@ -68,7 +68,7 @@ ScrollView  {
                 ]
             }
             Text {
-                text: "Parity:"
+                text: qsTr("Parity:")
             }
             ComboBox {
                 id: parity
@@ -83,7 +83,7 @@ ScrollView  {
                 ]
             }
             Text {
-                text: "Stop bits:"
+                text: qsTr("Stop bits:")
             }
             ComboBox {
                 id: stopBits
@@ -96,7 +96,7 @@ ScrollView  {
                 ]
             }
             Text {
-                text: "Flow control:"
+                text: qsTr("Flow control:")
             }
             ComboBox {
                 id: flowControl
@@ -113,16 +113,15 @@ ScrollView  {
         Button {
             Layout.margins: 10
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-            text: "Accept"
+            text: qsTr("Accept")
             onClicked: {
-//                let qwe = portHandler.openSerialPort();
+                portHandler.baudRate = baudRate.currentValue;
+                portHandler.dataBits = dataBits.currentValue;
+                portHandler.parity = parity.currentValue;
+                portHandler.stopBits = stopBits.currentValue;
+                portHandler.flowControl = flowControl.currentValue;
                 if (portName.currentIndex !== -1 && !portHandler.portOpen) {
                     portHandler.portName = portName.currentValue;
-                    portHandler.baudRate = baudRate.currentValue;
-                    portHandler.dataBits = dataBits.currentValue;
-                    portHandler.parity = parity.currentValue;
-                    portHandler.stopBits = stopBits.currentValue;
-                    portHandler.flowControl = flowControl.currentValue;
                     let qwe = portHandler.openSerialPort();
                     if (qwe === SerialPort.NoError) {
                         stackView.pop()

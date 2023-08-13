@@ -36,6 +36,7 @@ class SerialPortHandler : public QObject
     Q_PROPERTY(QSerialPort::StopBits stopBits READ getStopBits WRITE setStopBits NOTIFY stopBitsChanged)
     Q_PROPERTY(QSerialPort::FlowControl flowControl READ getFlowControl WRITE setFlowControl NOTIFY flowControlChanged)
     Q_PROPERTY(bool portOpen READ getPortStatus NOTIFY portStateChanged)
+    Q_PROPERTY(Language language READ getLanguage WRITE setLanguage NOTIFY languageChanged)
 
     struct PortSettings {
         QString name;
@@ -47,6 +48,11 @@ class SerialPortHandler : public QObject
     };
 
 public:
+    enum Language {
+        EN = 1,
+        UA
+    };
+
     explicit SerialPortHandler(QSettings*, QObject* parent = nullptr);
     ~SerialPortHandler();
 
@@ -78,6 +84,9 @@ public:
     QSerialPort* getPort() { return m_port; };
     bool getPortStatus() const;
 
+    void setLanguage(Language);
+    Language getLanguage() const { return language; };
+
     void readSettings();
     void writeSettings();
 
@@ -93,6 +102,7 @@ Q_SIGNALS:
     void stopBitsChanged();
     void flowControlChanged();
     void portStateChanged();
+    void languageChanged();
 
 private:
     QList<QSerialPortInfo> m_portList;
@@ -100,6 +110,7 @@ private:
     QSerialPort* m_port;
     PortSettings portSettings;
     QSettings* settings;
+    Language language;
 };
 
 #endif // SERIALPORTHANDLER_H

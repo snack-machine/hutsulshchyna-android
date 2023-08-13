@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
 #include <QSettings>
+#include <QTranslator>
 
 #include "coord-handler.h"
 #include "file-handler.h"
@@ -98,11 +99,21 @@ bool checkPermission(const QString& perm)
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setOrganizationName("Coordinator");
-    QGuiApplication::setApplicationName("Sigma");
+    QGuiApplication::setOrganizationName("Sigma");
+    QGuiApplication::setApplicationName("Coordinator");
 
     QGuiApplication app(argc, argv);
     QSettings settings(QGuiApplication::organizationName(), QGuiApplication::applicationName());
+    QTranslator translator;
+    int lang = settings.value("language", -1).toInt();
+    if (lang == -1 || lang == SerialPortHandler::UA) {
+        if (translator.load(":/hutsulshchyna-android/translations/ua/ukrainian.qm")) {
+            app.installTranslator(&translator);
+            lang = SerialPortHandler::UA;
+        }
+    } else {
+        lang = SerialPortHandler::EN;
+    }
 
 #ifdef PLATFORM_ANDROID
     jobject context = QNativeInterface::QAndroidApplication::context();
@@ -117,6 +128,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<SerialPortHandler>("SerialPortHandler", 1, 0, "SerialPortHandler");
     SerialPortHandler serialPortHandler(&settings);
+    serialPortHandler.setLanguage(static_cast<SerialPortHandler::Language>(lang));
 
     qmlRegisterType<SerialPortHandler>("CoordHandler", 1, 0, "CoordHandler");
     CoordHandler coordHandler;
@@ -124,16 +136,18 @@ int main(int argc, char *argv[])
     qmlRegisterType<SerialPortHandler>("FileHandler", 1, 0, "FileHandler");
     FileHandler fileHandler(&coordHandler);
 
+    QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::getPortMessageSlot);
+
 #ifdef PLATFORM_ANDROID
     globalSerialPortHandler = &serialPortHandler;
-#endif
 
-    QObject::connect(&serialPortHandler, &SerialPortHandler::portDataRead, &coordHandler, &CoordHandler::getPortMessageSlot);
-//    QObject::connect(&app, &QGuiApplication::applicationStateChanged, [&app, &serialPortHandler](Qt::ApplicationState state){
-//        if (state == Qt::ApplicationSuspended) {
-//            serialPortHandler.writeSettings();
-//        }
-//    });
+    QObject::connect(&app, &QGuiApplication::applicationStateChanged, &app, [&serialPortHandler, &settings](Qt::ApplicationState state){
+        if (state == Qt::ApplicationSuspended) {
+            serialPortHandler.writeSettings();
+            settings.sync();
+        }
+    });
+#endif
 
     qmlRegisterUncreatableMetaObject(
         SerialPortENUM::staticMetaObject,   // meta object created by Q_NAMESPACE macro

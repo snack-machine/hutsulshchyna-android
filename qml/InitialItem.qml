@@ -23,19 +23,20 @@ ScrollView {
         Text {
             Layout.leftMargin: 20
             property string lat: coordHandler.latitude
-            text: qsTr("Latitude: ") + lat }
+            text: qsTr("Latitude: ") + lat
+        }
         Text {
             property string lon: coordHandler.longitude
-            text: qsTr("Longitude: " + lon )
+            text: qsTr("Longitude: ") + lon
         }
         Text {
             Layout.leftMargin: 20
             property string timeValue: coordHandler.time
-            text: qsTr("Time: " + timeValue)
+            text: qsTr("Time: ") + timeValue
         }
         Text {
             property string currentAlt: coordHandler.altitude
-            text: qsTr("Altitude: " + currentAlt)
+            text: qsTr("Altitude: ") + currentAlt
         }
 
         Text {
@@ -67,7 +68,7 @@ ScrollView {
                 id: setCenterButton
                 text: qsTr("Set Center")
                 onClicked: {
-                    toast.show("Sentered", 2000, "#222222");
+                    toast.show(qsTr("Sentered"), 2000, "#222222");
                 }
             }
 //            Text { text: qsTr("Scale") }
@@ -79,7 +80,7 @@ ScrollView {
                 id: clearButton
                 text: qsTr("Clear")
                 onClicked: {
-                    popup.open();
+                    clearDialog.open();
                 }
             }
         }
@@ -121,50 +122,82 @@ ScrollView {
             }
         }
 
-        Popup {
-            id: popup
+//        Popup {
+//            id: popup
+//            modal: true
+//            focus: true
+//            x: (parent.width - implicitWidth) / 2
+//            y: (parent.height - implicitHeight) / 2
+//            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+//            Rectangle {
+//                implicitWidth: column.implicitWidth + 10
+//                implicitHeight: column.implicitHeight + 10
+//                color: "white"
+//                Column {
+//                    id: column
+//                    spacing: 10
+//                    anchors.centerIn: parent
+//                    Text {
+//                        text: qsTr("Clear received coordinates?")
+//                        font.pixelSize: 18
+//                        color: "black"
+//                    }
+//                    Row {
+//                        spacing: 10
+//                        anchors.right: parent.right
+//                        Layout.alignment: Qt.AlignRight
+//                        Button {
+//                            Layout.alignment: Qt.AlignRight
+//                            text: qsTr("Yes")
+//                            onClicked: {
+//                                coordHandler.clearData();
+//                                pointName.text = "";
+//                                pointDescription.text = "";
+//                                toast.show(qsTr("Cleared"), 2000, "#222222");
+//                                popup.close()
+//                            }
+//                        }
+//                        Button {
+//                            Layout.alignment: Qt.AlignRight
+//                            text: qsTr("No")
+//                            onClicked: {
+//                                popup.close()
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
+        Dialog {
+            id: clearDialog
+            x: Math.round((window.width - width) / 2)
+            y: Math.round(window.height / 6)
+            width: Math.round(Math.min(window.width, window.height) / 3 * 2)
             modal: true
             focus: true
-            x: (parent.width - implicitWidth) / 2
-            y: (parent.height - implicitHeight) / 2
-            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+            title: qsTr("Clear")
 
-            Rectangle {
-                implicitWidth: column.implicitWidth + 10
-                implicitHeight: column.implicitHeight + 10
-                color: "white"
-                Column {
-                    id: column
-                    spacing: 10
-                    anchors.centerIn: parent
-                    Text {
-                        text: "Clear received coordinates?"
-                        font.pixelSize: 18
-                        color: "black"
-                    }
-                    Row {
-                        spacing: 10
-                        anchors.right: parent.right
-                        Layout.alignment: Qt.AlignRight
-                        Button {
-                            Layout.alignment: Qt.AlignRight
-                            text: qsTr("No")
-                            onClicked: {
-                                popup.close()
-                            }
-                        }
-                        Button {
-                            Layout.alignment: Qt.AlignRight
-                            text: qsTr("Yes")
-                            onClicked: {
-                                coordHandler.clearData();
-                                pointName.text = "";
-                                pointDescription.text = "";
-                                toast.show("Cleared", 2000, "#222222");
-                                popup.close()
-                            }
-                        }
-                    }
+
+            standardButtons: Dialog.Ok | Dialog.Cancel
+            onAccepted: {
+                coordHandler.clearData();
+                pointName.text = "";
+                pointDescription.text = "";
+                toast.show(qsTr("Cleared"), 2000, "#222222");
+                clearDialog.close()
+            }
+            onRejected: {
+                clearDialog.close();
+            }
+
+            contentItem: ColumnLayout {
+                id: settingsColumn
+                spacing: 20
+                Label {
+                    text: qsTr("Clear received coordinates?")
+                    font.pixelSize: 18
                 }
             }
         }

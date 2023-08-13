@@ -74,31 +74,14 @@ ScrollView  {
             ComboBox {
                 id: baudRate
                 model: [9600, 19200, 38400, 57600, 115200]
-//                textRole: "text"
-//                valueRole: "value"
-//                model: [
-//                    { value: SerialPort.Baud9600, text: "9600" },
-//                    { value: SerialPort.Baud19200, text: "19200" },
-//                    { value: SerialPort.Baud38400, text: "38400" },
-//                    { value: SerialPort.Baud57600, text: "57600" },
-//                    { value: SerialPort.Baud115200, text: "115200" }
-//                ]
             }
             Text {
                 text: qsTr("Data bits:")
             }
             ComboBox {
                 id: dataBits
-//                textRole: "text"
-//                valueRole: "value"
                 currentIndex: 3
                 model: [5, 6, 7, 8]
-//                model: [
-//                    { value: SerialPort.Data5, text: "5" },
-//                    { value: SerialPort.Data6, text: "6" },
-//                    { value: SerialPort.Data7, text: "7" },
-//                    { value: SerialPort.Data8, text: "8" }
-//                ]
             }
             Text {
                 text: qsTr("Parity:")
