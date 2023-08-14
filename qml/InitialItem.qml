@@ -61,36 +61,45 @@ ScrollView {
             property string averageAlt: coordHandler.averageAlt
             text: qsTr("Altitude: ") + averageAlt
         }
-        RowLayout {
+        Button {
             Layout.columnSpan: 2
-            Layout.alignment: Qt.AlignHCenter
-            Button {
-                id: setCenterButton
-                text: qsTr("Set Center")
-                onClicked: {
-                    toast.show(qsTr("Sentered"), 2000, "#222222");
-                }
+            Layout.alignment: Qt.AlignHCenter;
+            id: clearButton
+            text: qsTr("Clear")
+            onClicked: {
+                clearDialog.open();
             }
-//            Text { text: qsTr("Scale") }
-//            SpinBox {
-//                from: 1
-//                to: 30
+        }
+//        RowLayout {
+//            Layout.columnSpan: 2
+//            Layout.alignment: Qt.AlignHCenter
+//            Button {
+//                id: setCenterButton
+//                text: qsTr("Set Center")
+//                onClicked: {
+//                    toast.show(qsTr("Sentered"), 2000, "#222222");
+//                }
 //            }
-            Button {
-                id: clearButton
-                text: qsTr("Clear")
-                onClicked: {
-                    clearDialog.open();
-                }
-            }
-        }
-        Image {
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignHCenter
-            Layout.columnSpan: 2
-            source: "qrc:/hutsulshchyna-android/icons/coords.png"
-            fillMode: Image.PreserveAspectFit
-        }
+////            Text { text: qsTr("Scale") }
+////            SpinBox {
+////                from: 1
+////                to: 30
+////            }
+//            Button {
+//                id: clearButton
+//                text: qsTr("Clear")
+//                onClicked: {
+//                    clearDialog.open();
+//                }
+//            }
+//        }
+//        Image {
+//            Layout.fillWidth: true
+//            Layout.alignment: Qt.AlignHCenter
+//            Layout.columnSpan: 2
+//            source: "qrc:/hutsulshchyna-android/icons/coords.png"
+//            fillMode: Image.PreserveAspectFit
+//        }
         TextField {
             id: pointName
             Layout.alignment: Qt.AlignHCenter
@@ -121,54 +130,6 @@ ScrollView {
                 saveDialog.open()
             }
         }
-
-//        Popup {
-//            id: popup
-//            modal: true
-//            focus: true
-//            x: (parent.width - implicitWidth) / 2
-//            y: (parent.height - implicitHeight) / 2
-//            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-
-//            Rectangle {
-//                implicitWidth: column.implicitWidth + 10
-//                implicitHeight: column.implicitHeight + 10
-//                color: "white"
-//                Column {
-//                    id: column
-//                    spacing: 10
-//                    anchors.centerIn: parent
-//                    Text {
-//                        text: qsTr("Clear received coordinates?")
-//                        font.pixelSize: 18
-//                        color: "black"
-//                    }
-//                    Row {
-//                        spacing: 10
-//                        anchors.right: parent.right
-//                        Layout.alignment: Qt.AlignRight
-//                        Button {
-//                            Layout.alignment: Qt.AlignRight
-//                            text: qsTr("Yes")
-//                            onClicked: {
-//                                coordHandler.clearData();
-//                                pointName.text = "";
-//                                pointDescription.text = "";
-//                                toast.show(qsTr("Cleared"), 2000, "#222222");
-//                                popup.close()
-//                            }
-//                        }
-//                        Button {
-//                            Layout.alignment: Qt.AlignRight
-//                            text: qsTr("No")
-//                            onClicked: {
-//                                popup.close()
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
 
         Dialog {
             id: clearDialog

@@ -2,6 +2,7 @@
 #include "coord-handler.h"
 
 #include <QTime>
+#include <QDateTime>
 //const QRegularExpression CoordHandler::regex("^\\$.{2}GGA");
 //#include <QDebug>
 
@@ -84,8 +85,12 @@ void CoordHandler::getPortMessageSlot(const QByteArray& data)
     if (tokens.size() < 11) {
         return;
     }
+
     QTime parsedTime = QTime::fromString(tokens.at(1).toString(), "HHmmss.z");
-    time = parsedTime.toString();
+    QDateTime utcDateTime(QDate::currentDate(), parsedTime, Qt::UTC);
+    QDateTime localDateTime = utcDateTime.toLocalTime();
+    QTime localTime = localDateTime.time();
+    time = localTime.toString();
 
     double lat  = tokens.at(2).toDouble(&ok);
     double lng = tokens.at(4).toDouble(&ok);
